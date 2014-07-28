@@ -1,0 +1,176 @@
+#!/usr/bin/perl
+use v5.10.0;
+use strict;
+use warnings;
+use WebService::Strava3;
+use LWP::Authen::OAuth2;
+use Config::Tiny;
+use Data::Dumper;
+use Try::Tiny;
+use File::Spec;
+use utf8::all;
+
+# PODNAME: strava
+
+# ABSTRACT: strava - Command line interface to Strava
+
+# VERSION
+
+=head1 SYNOPSIS
+
+Usage:
+
+    strava setup                            : Configure Oauth2 authentication
+
+    Debugging commands:
+    
+    strava version                          : Show version information
+
+=head1 SETUP
+
+=head2 Installation
+
+If you have not already installed this software, the easiest way
+is to use L<cpanm> and L<local::lib>. If you don't have them installed,
+it's easy with:
+
+    curl -L http://cpanmin.us/ | perl - --self-upgrade
+    ~/perl5/bin/cpanm -L ~/perl5 App::local::lib::helper
+    source ~/perl5/bin/localenv-bashrc
+
+You might want to put that last line in your F<~/.bashrc> file.
+
+You can then install C<strava> and related utilities with:
+
+    cpanm WebService::Strava3
+
+=head2 API Registration
+
+You will need to register for a Client Secret + Access token here:
+https://www.strava.com/settings/api
+
+Set the authorization callback domain to: urn:ietf:wg:oauth:2.0:oob
+
+=head2 Configuration
+
+You'll need to have a ~/.stravarc file that looks like 
+the following:
+
+    [auth]
+    client_id     = xxxxx
+    client_secret = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+You can get these values by going to https://www.strava.com/settings/api
+After regististration simply run:
+
+    strava setup
+
+=head1 DESCRIPTION
+
+This is a command-line client for the L<Strava|http://strava.com/>
+service.  Use C<strava> with no arguments for help.
+
+=head1 BUGS/Features Requests
+
+Please submit any bugs, feature requests to
+L<https://github.com/techamn83/WebService-Strava3/issues> .
+
+Contributions are more than welcome!
+
+=head1 SEE ALSO
+
+L<WebService::Strava3>
+
+=cut
+
+if (not @ARGV or $ARGV[0] eq 'help') {
+    say q{
+    Usage:
+
+    strava setup                          : Configure Oauth2 authentication
+
+    Debugging commands:
+    
+    strava version                          : Show version information
+
+    For more documentation, use `perldoc strava`.
+    };
+
+    exit 1;
+}
+
+my $PROGNAME = (File::Spec->splitpath($0))[2];
+$PROGNAME ||= 'strava';
+
+my $config_file = "$ENV{HOME}/.stravarc";
+
+my $config = Config::Tiny->read( $config_file );
+
+unless ($config->{auth}{api_token}) {
+    die <<"END_DIE";
+Cannot find user credentials in $config_file
+
+You'll need to have a $config_file file that looks like 
+the following:
+
+    [auth]
+    client_id     = xxxxx
+    client_secret = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+You can get these values by going to https://www.strava.com/settings/api
+END_DIE
+}
+
+
+# If there is a better way to do this for a cli app, please submit an issue!
+my $oauth2;
+
+if (! $config->{auth}{token_string}) {
+  $oauth2 = LWP::Authen::OAuth2->new(
+                client_id => $config->{auth}{client_id},
+                client_secret => $config->{auth}{client_secret},
+                service_provider => "Strava",
+                redirect_uri => "urn:ietf:wg:oauth:2.0:oob",
+                scope => 'view_private,write',
+            );
+  my $url = $oauth2->authorization_url();
+  say "Log into the youtube account and, set your channel and browse the following url\n";
+  say "$url\n";
+  my $code = &Prompt("Paste code result here");
+  $oauth2->request_tokens(code => $code);
+  $config->{auth}{token_string} = $oauth2->token_string;
+  $googleapi->write($config_file);
+} else {
+  $oauth2 = LWP::Authen::OAuth2->new(
+                client_id => $config->{auth}{client_id},
+                client_secret => $config->{auth}{client_secret},
+                service_provider => "Strava",
+                redirect_uri => "urn:ietf:wg:oauth:2.0:oob",
+
+                # This is for when you have tokens from last time.
+                token_string => $config->{auth}{token_string},
+            );
+}
+
+
+
+
+sub Prompt { # inspired from here: http://alvinalexander.com/perl/edu/articles/pl010005
+  my ($question,$default) = @_;
+  if ($default) {
+    say $question, "[", $default, "]: ";
+  } else {
+    say $question, ": ";
+  }
+
+  $| = 1;               # flush
+  $_ = <STDIN>;         # get input
+
+  chomp;
+  if ("$default") {
+    return $_ ? $_ : $default;    # return $_ if it has a value
+  } else {
+    return $_;
+  }
+}
+
