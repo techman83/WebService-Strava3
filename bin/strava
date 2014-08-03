@@ -2,12 +2,8 @@
 use v5.10.0;
 use strict;
 use warnings;
-use WebService::Strava3;
-use LWP::Authen::OAuth2;
-use Config::Tiny;
+use WebService::Strava;
 use Data::Dumper;
-use Try::Tiny;
-use File::Spec;
 use utf8::all;
 
 # PODNAME: strava
@@ -102,75 +98,9 @@ if (not @ARGV or $ARGV[0] eq 'help') {
 my $PROGNAME = (File::Spec->splitpath($0))[2];
 $PROGNAME ||= 'strava';
 
-my $config_file = "$ENV{HOME}/.stravarc";
-
-my $config = Config::Tiny->read( $config_file );
-
-unless ($config->{auth}{api_token}) {
-    die <<"END_DIE";
-Cannot find user credentials in $config_file
-
-You'll need to have a $config_file file that looks like 
-the following:
-
-    [auth]
-    client_id     = xxxxx
-    client_secret = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-You can get these values by going to https://www.strava.com/settings/api
-END_DIE
-}
-
-
-# If there is a better way to do this for a cli app, please submit an issue!
-my $oauth2;
-
-if (! $config->{auth}{token_string}) {
-  $oauth2 = LWP::Authen::OAuth2->new(
-                client_id => $config->{auth}{client_id},
-                client_secret => $config->{auth}{client_secret},
-                service_provider => "Strava",
-                redirect_uri => "urn:ietf:wg:oauth:2.0:oob",
-                scope => 'view_private,write',
-            );
-  my $url = $oauth2->authorization_url();
-  say "Log into the youtube account and, set your channel and browse the following url\n";
-  say "$url\n";
-  my $code = &Prompt("Paste code result here");
-  $oauth2->request_tokens(code => $code);
-  $config->{auth}{token_string} = $oauth2->token_string;
-  $googleapi->write($config_file);
-} else {
-  $oauth2 = LWP::Authen::OAuth2->new(
-                client_id => $config->{auth}{client_id},
-                client_secret => $config->{auth}{client_secret},
-                service_provider => "Strava",
-                redirect_uri => "urn:ietf:wg:oauth:2.0:oob",
-
-                # This is for when you have tokens from last time.
-                token_string => $config->{auth}{token_string},
-            );
-}
 
 
 
 
-sub Prompt { # inspired from here: http://alvinalexander.com/perl/edu/articles/pl010005
-  my ($question,$default) = @_;
-  if ($default) {
-    say $question, "[", $default, "]: ";
-  } else {
-    say $question, ": ";
-  }
 
-  $| = 1;               # flush
-  $_ = <STDIN>;         # get input
-
-  chomp;
-  if ("$default") {
-    return $_ ? $_ : $default;    # return $_ if it has a value
-  } else {
-    return $_;
-  }
-}
 

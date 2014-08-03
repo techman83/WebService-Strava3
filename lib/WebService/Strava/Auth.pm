@@ -1,10 +1,13 @@
-package WebService::Strava::Athelete;
+package WebService::Strava::Auth;
 
 use v5.010;
 use strict;
 use warnings;
 use Moo;
 use Method::Signatures;
+use Config::Tiny;
+use LWP::Authen::OAuth2;
+use Carp qw(croak);
 use Data::Dumper;
 
 # ABSTRACT: A Strava Segment Object
@@ -24,6 +27,116 @@ use Data::Dumper;
 
 =cut
 
-# Method List starred segments
+# Debugging hooks in case things go weird. (Thanks @pjf)
+
+around BUILDARGS => sub {
+  my $orig  = shift;
+  my $class = shift;
+  
+  if ($WebService::Strava::DEBUG) {
+    warn "Building task with:\n";
+    warn Dumper(\@_), "\n";
+  }
+  
+  return $class->$orig(@_);
+};
+
+has 'config_file'   => ( is => 'ro', default  => sub { "$ENV{HOME}/.stravarc" } );
+has 'config'        => ( is => 'rw', lazy => 1, builder => 1; );
+has 'scope'         => ( is => 'ro', default  => sub { "view_private,write" } );
+has 'auth'          => ( is => 'rw', lazy => 1, builder => 1, handles => [ qw( get post ) ] );
+
+# TODO: Potentially allow the config to be passed through instead of loaded.
+#has 'client_id'     => ( is => 'ro' );
+#has 'client_secret' => ( is => 'ro' );
+#has 'token_string'  => ( is => 'rw' );
+
+method setup() {
+  if (! $self->config->{auth}{client_id} ) {
+    $self->config->{auth}{client_id} = $self->prompt("Paste enter your client_id");
+  }
+  
+  if (! $self->config->{auth}{client_id} ) {
+    $self->config->{auth}{client_secret} = $self->prompt("Paste enter your client_id");
+  }
+  
+  my $oauth2 = LWP::Authen::OAuth2->new(
+     client_id => $self->config->{auth}{client_id},
+     client_secret => $self->config->{auth}{client_secret},
+     service_provider => "Strava",
+     redirect_uri => "urn:ietf:wg:oauth:2.0:oob",
+     scope => $self->{scope},
+  );
+
+  my $url = $oauth2->authorization_url();
+  say "Log into the Strava account and browse the following url\n";
+  say "$url";
+  my $code = $self->prompt("Paste code result here");
+  $oauth2->request_tokens(code => $code);
+  $self->config->{auth}{token_string} = $oauth2->token_string;
+  $self->config->write($self->{config_file});
+}
+
+method _builder_config() {
+  my $config;
+  if ( -e $self->{config_file} )
+    my $config = Config::Tiny->read( $self->{config_file} );
+    unless ($config->{auth}{client_id} 
+            && $config->{auth}{client_id}
+            && $config->{auth}{token_string}) {
+      die <<"END_DIE";
+Cannot find user credentials in $self->{config_file}
+
+You'll need to have a $self->{config_file} file that looks like 
+the following:
+
+    [auth]
+    client_id     = xxxxx
+    client_secret = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+You can get these values by going to https://www.strava.com/settings/api
+
+Running 'strava setup' or \$strava->auth->setup will run you through
+setting up Oauth2.
+
+END_DIE
+}
+  } else {
+    $config = Config::Tiny->new();
+  }
+  return $config;
+}
+
+method _builder_auth() {
+  my $oauth2 = LWP::Authen::OAuth2->new(
+                client_id => $self->config->{auth}{client_id},
+                client_secret => $self->config->{auth}{client_secret},
+                service_provider => "Strava",
+                redirect_uri => "urn:ietf:wg:oauth:2.0:oob",
+
+                # This is for when you have tokens from last time.
+                token_string => $self->config->{auth}{token_string},
+            );
+  return $oauth2;
+}
+
+sub prompt { # inspired from here: http://alvinalexander.com/perl/edu/articles/pl010005
+  my ($question,$default) = @_;
+  if ($default) {
+    say $question, "[", $default, "]: ";
+  } else {
+    say $question, ": ";
+  }
+
+  $| = 1;               # flush
+  $_ = <STDIN>;         # get input
+
+  chomp;
+  if ("$default") {
+    return $_ ? $_ : $default;    # return $_ if it has a value
+  } else {
+    return $_;
+  }
+}
 
 1;
