@@ -16,14 +16,12 @@ use Data::Dumper;
 
 =head1 SYNOPSIS
 
-  my $segment = WebService::Strava::Segment->new( auth => $auth, id => '229781' );
-
-  my $segment = WebService::Strava::Segment->new( auth => $auth, id => '229781' );
+  my $auth = WebService::Strava::Auth->new(['config_file' => '/path/to/file'], ['scope' => 'read']);
 
 =head1 DESCRIPTION
 
-  Upon instantiation will retrieve the segment matching the id.
-  Requires a pre-authenticated WebService::Strava::Auth object.
+  A thin wrapper around LWP::Authen::OAuth2 to provide a pre-authenticated Oauth2 object
+  as a helper for the rest of WebService::Strava.
 
 =cut
 
@@ -51,7 +49,19 @@ has 'auth'          => ( is => 'rw', lazy => 1, builder => 1, handles => [ qw( g
 #has 'client_secret' => ( is => 'ro' );
 #has 'token_string'  => ( is => 'rw' );
 
+=method setup()
+
+  $auth->setup();
+
+Runs through configuring Oauth2 authentication with the Strava API. You
+will need your client_id and client_secret available here:
+
+https://www.strava.com/settings/api
+
+=cut
+
 method setup() {
+  # Request Client details if non existent
   if (! $self->config->{auth}{client_id} ) {
     $self->config->{auth}{client_id} = $self->prompt("Paste enter your client_id");
   }
@@ -60,6 +70,7 @@ method setup() {
     $self->config->{auth}{client_secret} = $self->prompt("Paste enter your client_id");
   }
   
+  # Build auth object
   my $oauth2 = LWP::Authen::OAuth2->new(
      client_id => $self->config->{auth}{client_id},
      client_secret => $self->config->{auth}{client_secret},
@@ -68,6 +79,7 @@ method setup() {
      scope => $self->{scope},
   );
 
+  # Get authentican token string
   my $url = $oauth2->authorization_url();
   say "Log into the Strava account and browse the following url\n";
   say "$url";
