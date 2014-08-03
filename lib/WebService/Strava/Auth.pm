@@ -70,23 +70,23 @@ method setup() {
     $self->config->{auth}{client_id} = $self->prompt("Paste enter your client_id");
   }
   
-  if (! $self->config->{auth}{client_id} ) {
-    $self->config->{auth}{client_secret} = $self->prompt("Paste enter your client_id");
+  if (! $self->config->{auth}{client_secret} ) {
+    $self->config->{auth}{client_secret} = $self->prompt("Paste enter your client_secret");
   }
   
   # Build auth object
   my $oauth2 = LWP::Authen::OAuth2->new(
-     client_id => $self->config->{auth}{client_id},
-     client_secret => $self->config->{auth}{client_secret},
-     service_provider => "Strava",
-     redirect_uri => "urn:ietf:wg:oauth:2.0:oob",
-     scope => $self->{scope},
+    client_id => $self->{config}{auth}{client_id},
+    client_secret => $self->{config}{auth}{client_secret},
+    authorization_endpoint => "https://www.strava.com/oauth/authorize",
+    token_endpoint => "https://www.strava.com/oauth/token",
+    redirect_uri => "urn:ietf:wg:oauth:2.0:oob",
+    scope => $self->{scope},
   );
 
   # Get authentican token string
-  my $url = $oauth2->authorization_url();
   say "Log into the Strava account and browse the following url\n";
-  say "$url";
+  say "https://www.strava.com/oauth/authorize?client_id=$self->{config}{auth}{client_id}&response_type=code&redirect_uri=http://127.0.0.1&approval_prompt=force&scope=write,view_private";
   my $code = $self->prompt("Paste code result here");
   $oauth2->request_tokens(code => $code);
   $self->config->{auth}{token_string} = $oauth2->token_string;
@@ -125,8 +125,8 @@ END_DIE
 
 method _build_auth() {
   my $oauth2 = LWP::Authen::OAuth2->new(
-                client_id => $self->config->{auth}{client_id},
-                client_secret => $self->config->{auth}{client_secret},
+                client_id => $self->{config}{auth}{client_id},
+                client_secret => $self->{config}{auth}{client_secret},
                 service_provider => "Strava",
                 redirect_uri => "urn:ietf:wg:oauth:2.0:oob",
 
