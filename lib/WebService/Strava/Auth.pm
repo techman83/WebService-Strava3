@@ -16,7 +16,10 @@ use Data::Dumper;
 
 =head1 SYNOPSIS
 
-  my $auth = WebService::Strava::Auth->new(['config_file' => '/path/to/file'], ['scope' => 'read']);
+  my $auth = WebService::Strava::Auth->new(
+    ['config_file' => '/path/to/file'], 
+    ['scope' => 'read']
+  );
 
 =head1 DESCRIPTION
 
@@ -39,8 +42,9 @@ around BUILDARGS => sub {
   return $class->$orig(@_);
 };
 
+has 'api_base'      => (is => 'ro', default => sub { 'https://www.strava.com/api/v3' });
 has 'config_file'   => ( is => 'ro', default  => sub { "$ENV{HOME}/.stravarc" } );
-has 'config'        => ( is => 'rw', lazy => 1, builder => 1; );
+has 'config'        => ( is => 'rw', lazy => 1, builder => 1 );
 has 'scope'         => ( is => 'ro', default  => sub { "view_private,write" } );
 has 'auth'          => ( is => 'rw', lazy => 1, builder => 1, handles => [ qw( get post ) ] );
 
@@ -89,10 +93,10 @@ method setup() {
   $self->config->write($self->{config_file});
 }
 
-method _builder_config() {
+method _build_config() {
   my $config;
-  if ( -e $self->{config_file} )
-    my $config = Config::Tiny->read( $self->{config_file} );
+  if ( -e $self->{config_file} ) {
+    $config = Config::Tiny->read( $self->{config_file} );
     unless ($config->{auth}{client_id} 
             && $config->{auth}{client_id}
             && $config->{auth}{token_string}) {
@@ -119,7 +123,7 @@ END_DIE
   return $config;
 }
 
-method _builder_auth() {
+method _build_auth() {
   my $oauth2 = LWP::Authen::OAuth2->new(
                 client_id => $self->config->{auth}{client_id},
                 client_secret => $self->config->{auth}{client_secret},
@@ -132,12 +136,12 @@ method _builder_auth() {
   return $oauth2;
 }
 
-sub prompt { # inspired from here: http://alvinalexander.com/perl/edu/articles/pl010005
-  my ($question,$default) = @_;
+method prompt($question,:$default) { # inspired from here: http://alvinalexander.com/perl/edu/articles/pl010005
   if ($default) {
     say $question, "[", $default, "]: ";
   } else {
     say $question, ": ";
+    $default = "";
   }
 
   $| = 1;               # flush

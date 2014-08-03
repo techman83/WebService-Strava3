@@ -1,11 +1,12 @@
-package WebService::Strava::Gear::Bike;
+package WebService::Strava::Athlete::Gear::Bike;
 
 use v5.010;
 use strict;
 use warnings;
 use Moo;
 
-extends 'WebService::Strava::Gear';
+# TODO: Fix This..
+#extends 'WebService::Strava::Athlete::Gear';
 
 # ABSTRACT: An Athelete's Bike
 
