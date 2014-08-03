@@ -22,12 +22,12 @@ use Moo;
 =cut
 
 has 'id'              => ( is => 'ro' );
-has 'primary'         => ( is => 'rw' ); 
-has 'name'            => ( is => 'rw' );
-has 'distance'        => ( is => 'rw' );
-has 'brand_name'      => ( is => 'rw' );
-has 'model_name'      => ( is => 'rw' );
-has 'description'     => ( is => 'rw' );
-has 'resource_state'  => ( is => 'rw' );
+has 'primary'         => ( is => 'ro' ); 
+has 'name'            => ( is => 'ro' );
+has 'distance'        => ( is => 'ro' );
+has 'brand_name'      => ( is => 'ro' );
+has 'model_name'      => ( is => 'ro' );
+has 'description'     => ( is => 'ro' );
+has 'resource_state'  => ( is => 'ro' );
 
 1;
