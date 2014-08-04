@@ -40,4 +40,23 @@ method _build_auth() {
   return WebService::Strava::Auth->new();
 }
 
+=method segment
+
+  $strava->segment($id);
+
+Takes a mandatory id and will retrieve a
+L<WebService::Strava::Segment> with details about the Segment ID retrieved.
+
+After instantiation it is possible to retrieve efforts listed for that segment. Takes an optional number of efforts you wish to retrieve, else will return 25. 
+
+  $strava->segment->list_efforts("15");
+
+=cut
+
+use WebService::Strava::Segment;
+
+method segment($id) {
+    return WebService::Strava::Segment->new(id =>$id, auth => $self->auth);
+}
+
 1;

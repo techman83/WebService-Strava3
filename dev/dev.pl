@@ -1,11 +1,15 @@
 #!/usr/env/perl
 
 use strict;
-use WebService::Strava;
+use WebService::Strava::Auth;
 
 $ENV{STRAVA_DEGUG} = 1;
 
-my $strava = WebService::Strava->new();
+my $strava = WebService::Strava::Auth->new();
 
-$strava->auth->setup;
+#$strava->segment("3468536");
+
+$strava->auth;
+
+print Dumper($strava);
 

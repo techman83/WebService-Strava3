@@ -33,7 +33,7 @@ my $Num = sub {
 
 my $Ref = sub {
   croak "auth isn't a 'WebService::Strava::Auth' object!" unless reftype( $_[0] ) == "WebService::Strava::Auth";
-}
+};
 
 # Debugging hooks in case things go weird. (Thanks @pjf)
 
@@ -70,13 +70,9 @@ has 'country'         => ( is => 'ro' );
 has 'private'         => ( is => 'ro' );
 has 'starred'         => ( is => 'ro' );
 
-sub BUILD {
-  my ($self) = @_;
-  
-  $self->auth->get("/segments/$self->{id}");
-
-
-
+method BUILD() {
+  my $response = $self->auth->get_api("/segments/$self->{id}");
+  print Dumper($response);
   return;
 }
 
@@ -89,9 +85,7 @@ return 25 efforts unless 'number' is specified with a larger number.
 
 =cut
 
-sub list_efforts {
-  my ($self, $number) = @_;
-
+method list_efforts(:$number) {
   if (! $number) {
     $number = '25'
   }
