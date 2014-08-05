@@ -57,7 +57,7 @@ the following:
     client_secret = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 You can get these values by going to https://www.strava.com/settings/api
-After regististration simply run:
+After registration simply run:
 
     strava setup
 
