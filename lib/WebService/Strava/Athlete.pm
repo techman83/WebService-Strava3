@@ -1,4 +1,4 @@
-package WebService::Strava::Athelete;
+package WebService::Strava::Athlete;
 
 use v5.010;
 use strict;

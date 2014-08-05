@@ -5,8 +5,7 @@ use strict;
 use warnings;
 use Moo;
 
-# TODO: Fix This..
-#extends 'WebService::Strava::Athlete::Gear';
+extends 'WebService::Strava::Athlete::Gear';
 
 # ABSTRACT: An Athelete's Bike
 

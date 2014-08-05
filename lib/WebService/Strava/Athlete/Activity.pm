@@ -1,4 +1,4 @@
-package WebService::Strava::Athelete::Activity;
+package WebService::Strava::Athlete::Activity;
 
 use v5.010;
 use strict;

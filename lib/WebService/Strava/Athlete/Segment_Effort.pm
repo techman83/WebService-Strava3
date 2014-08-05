@@ -1,4 +1,4 @@
-package WebService::Strava::Athelete::Segment_Effort;
+package WebService::Strava::Athlete::Segment_Effort;
 
 use v5.010;
 use strict;
