@@ -78,18 +78,18 @@ method setup() {
   my $oauth2 = LWP::Authen::OAuth2->new(
     client_id => $self->{config}{auth}{client_id},
     client_secret => $self->{config}{auth}{client_secret},
-    authorization_endpoint => "https://www.strava.com/oauth/authorize",
-    token_endpoint => "https://www.strava.com/oauth/token",
-    redirect_uri => "urn:ietf:wg:oauth:2.0:oob",
+    service_provider => "Strava",
+    redirect_uri => "http://127.0.0.1",
     scope => $self->{scope},
   );
 
   # Get authentican token string
   say "Log into the Strava account and browse the following url\n";
-  say "https://www.strava.com/oauth/authorize?client_id=$self->{config}{auth}{client_id}&response_type=code&redirect_uri=http://127.0.0.1&approval_prompt=force&scope=write,view_private";
+  my $url = $oauth2->authorization_url();
+  say $url;
   my $code = $self->prompt("Paste code result here");
   $oauth2->request_tokens(code => $code);
-  $self->config->{auth}{token_string} = $oauth2->{access_token}{access_token};
+  $self->config->{auth}{token_string} = $oauth2->token_string;
   $self->config->write($self->{config_file});
 }
 
@@ -127,8 +127,7 @@ method _build_auth() {
   my $oauth2 = LWP::Authen::OAuth2->new(
     client_id => $self->{config}{auth}{client_id},
     client_secret => $self->{config}{auth}{client_secret},
-    authorization_endpoint => "https://www.strava.com/oauth/authorize",
-    token_endpoint => "https://www.strava.com/oauth/token",
+    service_provider => "Strava",
     token_string => $self->config->{auth}{token_string},
   );
   return $oauth2;
