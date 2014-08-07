@@ -59,7 +59,7 @@ method segment($id) {
   return WebService::Strava::Segment->new(id =>$id, auth => $self->auth);
 }
 
-=head1 ACKNOWLEGEMENTS
+=head1 ACKNOWLEDGEMENTS
 
 Thanks to the following people!
 Fred Moyer <fred@redhotpenguin.com> - Giving me Co-Maint on WebService::Strava
