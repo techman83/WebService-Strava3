@@ -7,6 +7,8 @@ use Moo;
 use Method::Signatures;
 use Config::Tiny;
 use LWP::Authen::OAuth2;
+use JSON qw(decode_json encode_json);
+use JSON::Parse 'valid_json';
 use Carp qw(croak);
 use Data::Dumper;
 
@@ -142,9 +144,13 @@ perl data structure of what the api returns.
 
 =cut
 
-method get_api($url) {
-  my $response = $self->auth->get($url);
-  return $response->decoded_content;
+method get_api($api_path) {
+  my $response = $self->auth->get($self->{api_base}.$api_path);
+  my $json = $response->decoded_content;
+  if (! valid_json($json) ) {
+    croak("Something went wrong, a JSON string wasn't returned");
+  }
+  return decode_json($json);
 }
 
 
