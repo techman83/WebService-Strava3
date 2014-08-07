@@ -1,15 +1,19 @@
 #!/usr/env/perl
 
 use strict;
-use WebService::Strava::Auth;
+use feature qw(say);
+use WebService::Strava;
+use Data::Dumper;
 
 $ENV{STRAVA_DEGUG} = 1;
 
-my $strava = WebService::Strava::Auth->new();
+my $strava = WebService::Strava->new();
 
-#$strava->segment("3468536");
+my $segment = $strava->segment("3468536");
 
-$strava->auth;
+#my $segment = $strava->auth->get("https://www.strava.com/api/v3/segments/3468536");
 
-print Dumper($strava);
+#say "$strava->{auth}{expires_in}"
 
+#print Dumper($strava);
+print Dumper($segment);
