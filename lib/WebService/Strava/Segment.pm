@@ -32,7 +32,7 @@ my $Num = sub {
 };
 
 my $Ref = sub {
-  croak "auth isn't a 'WebService::Strava::Auth' object!" unless reftype( $_[0] ) == "WebService::Strava::Auth";
+  croak "auth isn't a 'WebService::Strava::Auth' object!" unless reftype( $_[0] )->class eq "WebService::Strava::Auth";
 };
 
 # Debugging hooks in case things go weird. (Thanks @pjf)
@@ -50,29 +50,39 @@ around BUILDARGS => sub {
 };
 
 # Authentication Object
-has 'auth'            => ( is => 'auth', required => 1, isa => $Ref );
+has 'auth'            => ( is => 'ro', required => 1, isa => $Ref );
 
 # Segment Details
-has 'id'              => ( is => 'ro', required => 1, isa => $Num );
-has 'name'            => ( is => 'ro' );
-has 'activity_type'   => ( is => 'ro' );
-has 'distance'        => ( is => 'ro' );
-has 'average_grade'   => ( is => 'ro' );
-has 'maximum_grade'   => ( is => 'ro' );
-has 'elevation_high'  => ( is => 'ro' );
-has 'elevation_low'   => ( is => 'ro' );
-has 'start_latlng'    => ( is => 'ro' );
-has 'end_latlng'      => ( is => 'ro' );
-has 'climb_category'  => ( is => 'ro' );
-has 'city'            => ( is => 'ro' );
-has 'state'           => ( is => 'ro' );
-has 'country'         => ( is => 'ro' );
-has 'private'         => ( is => 'ro' );
-has 'starred'         => ( is => 'ro' );
+has 'id'                      => ( is => 'ro', required => 1, isa => $Num );
 
-method BUILD() {
-  my $response = $self->auth->get_api("/segments/$self->{id}");
-  print Dumper($response);
+sub BUILD {
+  my $self = shift;
+  my $segment = $self->auth->get_api("/segments/$self->{id}");
+  
+  # TODO: Research a better way to do this.
+  $self->{name} = $segment->{name};
+  $self->{activity_type} = $segment->{activity_type};
+  $self->{distance} = $segment->{distance};
+  $self->{average_grade} = $segment->{average_grade};
+  $self->{maximum_grade} = $segment->{maxiumum_grade};
+  $self->{elevation_high} = $segment->{elevation_high};
+  $self->{elevation_low} = $segment->{elevation_low};
+  $self->{start_latlng} = $segment->{start_latlng};
+  $self->{end_latlng} = $segment->{end_latlng};
+  $self->{climb_category} = $segment->{climb_category};
+  $self->{city} = $segment->{city};
+  $self->{state} = $segment->{state};
+  $self->{private} = $segment->{private};
+  $self->{starred} = $segment->{starred};
+  $self->{star_count} = $segment->{star_count};
+  $self->{map} = $segment->{map};
+  $self->{country} = $segment->{country};
+  $self->{athlete_count} = $segment->{athlete_count};
+  $self->{resource_state} = $segment->{resource_state};
+  $self->{effort_count} = $segment->{effort_count};
+  $self->{distance} = $segment->{distance};
+  $self->{total_elevation_gain} = $segment->{total_elevation_gain};
+
   return;
 }
 
