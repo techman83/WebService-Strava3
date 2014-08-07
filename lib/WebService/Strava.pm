@@ -56,7 +56,7 @@ After instantiation it is possible to retrieve efforts listed for that segment. 
 use WebService::Strava::Segment;
 
 method segment($id) {
-    return WebService::Strava::Segment->new(id =>$id, auth => $self->auth);
+  return WebService::Strava::Segment->new(id =>$id, auth => $self->auth);
 }
 
 1;
