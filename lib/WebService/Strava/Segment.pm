@@ -35,6 +35,10 @@ my $Ref = sub {
   croak "auth isn't a 'WebService::Strava::Auth' object!" unless reftype( $_[0] )->class eq "WebService::Strava::Auth";
 };
 
+my $Bool = sub {
+  croak "$_[0] must be 0|1" unless $_[0] =~ /^[01]$/;
+};
+
 # Debugging hooks in case things go weird. (Thanks @pjf)
 
 around BUILDARGS => sub {
@@ -52,11 +56,42 @@ around BUILDARGS => sub {
 # Authentication Object
 has 'auth'            => ( is => 'ro', required => 1, isa => $Ref );
 
-# Segment Details
-has 'id'                      => ( is => 'ro', required => 1, isa => $Num );
+# Defaults + Required
+has 'id'                    => ( is => 'ro', required => 1, isa => $Num );
+has '_build'                => ( is => 'ro', default => sub { 1 }, isa => $Bool );
+
+# Segment API
+has 'name'                  => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'activity_type'         => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'distance'              => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'average_grade'         => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'maximum_grade'         => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'elevation_high'        => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'elevation_low'         => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'start_latlng'          => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'end_latlng'            => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'climb_category'        => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'city'                  => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'state'                 => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'country'               => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'private'               => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'starred'               => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'map'                   => ( is => 'ro', lazy => 1, builder => '_build_segment' );
+has 'athlete_count'         => ( is => 'ro', lazy => 1, builder => '_build_segment' ); 
+has 'resource_state'        => ( is => 'ro', lazy => 1, builder => '_build_segment' ); 
+has 'effort_count'          => ( is => 'ro', lazy => 1, builder => '_build_segment' ); 
+has 'total_elevation_gain'  => ( is => 'ro', lazy => 1, builder => '_build_segment' ); 
 
 sub BUILD {
   my $self = shift;
+
+  if ($self->{_build}) {
+    $self->_build_segment();
+  }
+  return;
+}
+
+method _build_segment() {
   my $segment = $self->auth->get_api("/segments/$self->{id}");
   
   # TODO: Research a better way to do this.
@@ -80,7 +115,6 @@ sub BUILD {
   $self->{athlete_count} = $segment->{athlete_count};
   $self->{resource_state} = $segment->{resource_state};
   $self->{effort_count} = $segment->{effort_count};
-  $self->{distance} = $segment->{distance};
   $self->{total_elevation_gain} = $segment->{total_elevation_gain};
 
   return;
@@ -88,22 +122,26 @@ sub BUILD {
 
 =method list_efforts()
 
-  $segment->list_efforts([number])'
+  $segment->list_efforts([athlete_id => 123456], [page => 2], [efforts => 100])'
 
-Returns an array of efforts associated with this segment. Will 
-return 25 efforts unless 'number' is specified with a larger number.
+Returns the Segment efforts for a particular segment. Takes 3 optional
+parameters of 'athlete_id', 'page' and 'efforts'.
+
+  * 'athelete_id' will return the segment efforts (if any) for the athelete
+    in question.
+
+The results are paginated and a maxium of 200 results can be returned
+per page.
 
 =cut
 
-method list_efforts(:$number) {
-  if (! $number) {
-    $number = '25'
+method list_efforts(:$efforts = 25,:$page = 1,:$athlete_id) {
+  # TODO: Handle pagination better #4
+  if ($athlete_id) {
+    return $self->auth->get_api("/segments/$self->{id}/all_efforts?per_page=$efforts&page=$page&athlete_id=$athlete_id");
+  } else {
+    return $self->auth->get_api("/segments/$self->{id}/all_efforts?per_page=$efforts&page=$page");
   }
-
-  my $raw_efforts = $self->auth->get("/segments/$self->{id}/all_efforts?per_page=$number");
-  print Dumper($raw_efforts);
-
-  #return @efforts;
 };
 
 1;

@@ -40,6 +40,13 @@ method _build_auth() {
   return WebService::Strava::Auth->new();
 }
 
+=head2 Segments
+
+  Strava has the concept of segments, a segment can have many segment efforts
+  and many atheletes.
+
+=cut
+
 =method segment
 
   $strava->segment($id);
@@ -47,9 +54,16 @@ method _build_auth() {
 Takes a mandatory id and will retrieve a
 L<WebService::Strava::Segment> with details about the Segment ID retrieved.
 
-After instantiation it is possible to retrieve efforts listed for that segment. Takes an optional number of efforts you wish to retrieve, else will return 25. 
+After instantiation it is possible to retrieve efforts listed for that segment. It 
+takes 3 optional named parameters of 'athlete_id', 'page' and 'efforts'.
 
-  $strava->segment->list_efforts("15");
+  $segment->list_efforts([athlete_id => 123456], [page => 2], [efforts => 100])'
+
+ * 'athelete_id' will return the segment efforts (if any) for the athelete
+    in question.
+
+The results are paginated and a maxium of 200 results can be returned
+per page.
 
 =cut
 
