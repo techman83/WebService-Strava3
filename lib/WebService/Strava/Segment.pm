@@ -130,7 +130,7 @@ parameters of 'athlete_id', 'page' and 'efforts'.
   * 'athelete_id' will return the segment efforts (if any) for the athelete
     in question.
 
-The results are paginated and a maxium of 200 results can be returned
+The results are paginated and a maximum of 200 results can be returned
 per page.
 
 =cut
