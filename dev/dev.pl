@@ -16,4 +16,8 @@ my $segment = $strava->segment("3468536");
 #say "$strava->{auth}{expires_in}"
 
 #print Dumper($strava);
-print Dumper($segment);
+
+#print Dumper($segment);
+my $efforts = $segment->list_efforts(athlete_id => 226646);
+
+print Dumper($efforts);
