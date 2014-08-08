@@ -5,6 +5,9 @@ use strict;
 use warnings;
 use Moo;
 use Method::Signatures;
+use Scalar::Util qw(looks_like_number);
+use Scalar::Util::Reftype;
+use Carp qw(croak);
 use Data::Dumper;
 
 # ABSTRACT: A Strava Segment Object
@@ -13,17 +16,142 @@ use Data::Dumper;
 
 =head1 SYNOPSIS
 
-  my $segment = WebService::Strava::Segment->new( auth => $auth, id => '229781' );
-
-  my $segment = WebService::Strava::Segment->new( auth => $auth, id => '229781' );
+  my $athlete = WebService::Strava::Segment->new( auth => $auth, id => '229781' );
 
 =head1 DESCRIPTION
 
-  Upon instantiation will retrieve the segment matching the id.
+  Upon instantiation will retrieve the athlete matching the id.
   Requires a pre-authenticated WebService::Strava::Auth object.
 
 =cut
 
-# Method List starred segments
+# Validation functions
+
+my $Num = sub {
+  croak "$_[0] isn't a number" unless looks_like_number $_[0];
+};
+
+my $Ref = sub {
+  croak "auth isn't a 'WebService::Strava::Auth' object!" unless reftype( $_[0] )->class eq "WebService::Strava::Auth";
+};
+
+my $Bool = sub {
+  croak "$_[0] must be 0|1" unless $_[0] =~ /^[01]$/;
+};
+
+# Debugging hooks in case things go weird. (Thanks @pjf)
+
+around BUILDARGS => sub {
+  my $orig  = shift;
+  my $class = shift;
+  
+  if ($WebService::Strava::DEBUG) {
+    warn "Building task with:\n";
+    warn Dumper(\@_), "\n";
+  }
+  
+  return $class->$orig(@_);
+};
+
+# Authentication Object
+has 'auth'            => ( is => 'ro', required => 1, isa => $Ref );
+
+# Defaults + Required
+has 'id'                      => ( is => 'ro', required => 1, isa => $Num );
+has '_build'                  => ( is => 'ro', default => sub { 1 }, isa => $Bool );
+
+# Segment API
+has 'name'                    => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'resource_state'          => ( is => 'ro', lazy => 1, builder => '_build_athlete' ); 
+has 'firstname'               => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'lastname'                => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'profile_medium'          => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'profile'                 => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'city'                    => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'state'                   => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'country'                 => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'sex'                     => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'friend'                  => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'follower'                => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'premium'                 => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'created_at'              => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'updated_at'              => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'approve_followers'       => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'friend_count'            => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'mutual_friend_count'     => ( is => 'ro', lazy => 1, builder => '_build_athlete' ); 
+has 'date_preference'         => ( is => 'ro', lazy => 1, builder => '_build_athlete' ); 
+has 'measurement_preference'  => ( is => 'ro', lazy => 1, builder => '_build_athlete' ); 
+has 'email'                   => ( is => 'ro', lazy => 1, builder => '_build_athlete' ); 
+has 'ftp'                     => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'clubs'                   => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'bikes'                   => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+has 'shoes'                   => ( is => 'ro', lazy => 1, builder => '_build_athlete' );
+
+sub BUILD {
+  my $self = shift;
+
+  if ($self->{_build}) {
+    $self->_build_athlete();
+  }
+  return;
+}
+
+method _build_athlete() {
+  my $athlete = $self->auth->get_api("/athletes/$self->{id}");
+  
+  # TODO: Research a better way to do this.
+  $self->{name} = $athlete->{name};
+  $self->{resource_state} = $athlete->{resource_state};
+  $self->{firstname} = $athlete->{firstname};
+  $self->{lastname} = $athlete->{lastname};
+  $self->{profile_medium} = $athlete->{profile_medium};
+  $self->{profile} = $athlete->{profile};
+  $self->{city} = $athlete->{city};
+  $self->{state} = $athlete->{state};
+  $self->{country} = $athlete->{country};
+  $self->{sex} = $athlete->{sex};
+  $self->{friend} = $athlete->{friend};
+  $self->{follower} = $athlete->{follower};
+  $self->{premium} = $athlete->{premium};
+  $self->{created_at} = $athlete->{created_at};
+  $self->{updated_at} = $athlete->{updated_at};
+  $self->{approve_followers} = $athlete->{approve_followers};
+  $self->{follower_count} = $athlete->{follower_count};
+  $self->{friend_count} = $athlete->{friend_count};
+  $self->{mutual_friend_count} = $athlete->{mutual_friend_count};
+  $self->{date_preference} = $athlete->{date_preference};
+  $self->{measurement_preference} = $athlete->{measurement_preference};
+  $self->{email} = $athlete->{email};
+  $self->{ftp} = $athlete->{ftp};
+  $self->{clubs} = $athlete->{clubs};
+  $self->{bikes} = $athlete->{bikes};
+  $self->{shoes} = $athlete->{shoes};
+  
+  return;
+}
+
+#=method list_efforts()
+#
+#  $athlete->list_efforts([athlete_id => 123456], [page => 2], [efforts => 100])'
+#
+#Returns the Segment efforts for a particular athlete. Takes 3 optional
+#parameters of 'athlete_id', 'page' and 'efforts'.
+#
+#  * 'athelete_id' will return the athlete efforts (if any) for the athelete
+#    in question.
+#
+#The results are paginated and a maxium of 200 results can be returned
+#per page.
+#
+#=cut
+#
+#method list_efforts(:$efforts = 25,:$page = 1,:$athlete_id) {
+#  # TODO: Handle pagination better #4
+#  if ($athlete_id) {
+#    return $self->auth->get_api("/athletes/$self->{id}/all_efforts?per_page=$efforts&page=$page&athlete_id=$athlete_id");
+#  } else {
+#    return $self->auth->get_api("/athletes/$self->{id}/all_efforts?per_page=$efforts&page=$page");
+#  }
+#};
 
 1;
