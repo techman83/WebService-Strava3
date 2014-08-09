@@ -21,13 +21,71 @@ use Moo;
 
 =cut
 
-has 'id'              => ( is => 'ro' );
-has 'primary'         => ( is => 'ro' ); 
-has 'name'            => ( is => 'ro' );
-has 'distance'        => ( is => 'ro' );
-has 'brand_name'      => ( is => 'ro' );
-has 'model_name'      => ( is => 'ro' );
-has 'description'     => ( is => 'ro' );
-has 'resource_state'  => ( is => 'ro' );
+# Validation functions
+
+my $Num = sub {
+  croak "$_[0] isn't a number" unless looks_like_number $_[0];
+};
+
+my $Ref = sub {
+  croak "auth isn't a 'WebService::Strava::Auth' object!" unless reftype( $_[0] )->class eq "WebService::Strava::Auth";
+};
+
+my $Bool = sub {
+  croak "$_[0] must be 0|1" unless $_[0] =~ /^[01]$/;
+};
+
+# Debugging hooks in case things go weird. (Thanks @pjf)
+
+around BUILDARGS => sub {
+  my $orig  = shift;
+  my $class = shift;
+  
+  if ($WebService::Strava::DEBUG) {
+    warn "Building task with:\n";
+    warn Dumper(\@_), "\n";
+  }
+  
+  return $class->$orig(@_);
+};
+
+# Authentication Object
+has 'auth'            => ( is => 'ro', required => 1, isa => $Ref );
+
+# Defaults + Required
+has 'id'                      => ( is => 'ro', required => 1, isa => $Num );
+has '_build'                  => ( is => 'ro', default => sub { 1 }, isa => $Bool );
+
+has 'primary'         => ( is => 'ro', lazy => 1, builder => '_build_gear' ); 
+has 'name'            => ( is => 'ro', lazy => 1, builder => '_build_gear' );
+has 'distance'        => ( is => 'ro', lazy => 1, builder => '_build_gear' );
+has 'brand_name'      => ( is => 'ro', lazy => 1, builder => '_build_gear' );
+has 'model_name'      => ( is => 'ro', lazy => 1, builder => '_build_gear' );
+has 'description'     => ( is => 'ro', lazy => 1, builder => '_build_gear' );
+has 'resource_state'  => ( is => 'ro', lazy => 1, builder => '_build_gear' );
+
+sub BUILD {
+  my $self = shift;
+
+  if ($self->{_build}) {
+    $self->_build_gear();
+  }
+  return;
+}
+
+method _build_gear() {
+  my $gear = $self->auth->get_api("/gear/$self->{id}");
+  
+  # TODO: Research a better way to do this.
+  $self->{name} = $gear->{name};
+  $self->{primary} = $gear->{primary};
+  $self->{distance} = $gear->{distance};
+  $self->{brand_name} = $gear->{brand_name};
+  $self->{model_name} = $gear->{model_name};
+  $self->{description} = $gear->{description};
+  $self->{resource_state} = $gear->{resource_state};
+
+  return;
+}
 
 1;
