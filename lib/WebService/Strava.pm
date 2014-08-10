@@ -40,11 +40,27 @@ method _build_auth() {
   return WebService::Strava::Auth->new();
 }
 
+=method athlete
+
+  $strava->athlete([$id]);
+
+Takes an optional id and will retrieve a L<WebService::Strava::Athlete> 
+with details Athlete retrieved. Currently authenticated user will be
+returned unless an ID is provided.
+
+=cut
+
+use WebService::Strava::Athlete;
+
+method athlete($id?) {
+  return WebService::Strava::Athlete->new(id =>$id, auth => $self->auth);
+}
+
 =method segment
 
   $strava->segment($id);
 
-Takes a mandatory id and will retrieve a
+Takes an mandatory id and will retrieve a
 L<WebService::Strava::Segment> with details about the Segment ID retrieved.
 
 After instantiation it is possible to retrieve efforts listed for that segment. It 
@@ -66,14 +82,14 @@ method segment($id) {
   return WebService::Strava::Segment->new(id =>$id, auth => $self->auth);
 }
 
-=method athlete
+=method effort
 
 =cut
 
-use WebService::Strava::Athlete;
+use WebService::Strava::Athlete::Segment_Effort;
 
-method athlete($id?) {
-  return WebService::Strava::Athlete->new(id =>$id, auth => $self->auth);
+method effort($id) {
+  return WebService::Strava::Athlete::Segment_Effort->new(id =>$id, auth => $self->auth);
 }
 
 =head1 ACKNOWLEDGEMENTS
