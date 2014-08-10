@@ -22,6 +22,8 @@ my $strava = WebService::Strava->new();
 
 #@{$athlete->{clubs}}[0]->retrieve();
 
-my $effort = $strava->effort("4101511026");
+#my $effort = $strava->effort("4101511026");
 
-print Dumper($effort);
+my $activity = $strava->activity("5357306");
+
+print Dumper($activity);
