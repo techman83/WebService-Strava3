@@ -133,29 +133,29 @@ method _instantiate($type, $key, $data) {
   return;
 }
 
+=method list_records()
 
-#=method list_efforts()
-#
-#  $athlete->list_efforts([athlete_id => 123456], [page => 2], [efforts => 100])'
-#
-#Returns the Segment efforts for a particular athlete. Takes 3 optional
-#parameters of 'athlete_id', 'page' and 'efforts'.
-#
-#  * 'athelete_id' will return the athlete efforts (if any) for the athelete
-#    in question.
-#
-#The results are paginated and a maxium of 200 results can be returned
-#per page.
-#
-#=cut
-#
-#method list_efforts(:$efforts = 25,:$page = 1,:$athlete_id) {
-#  # TODO: Handle pagination better #4
-#  if ($athlete_id) {
-#    return $self->auth->get_api("/athletes/$self->{id}/all_efforts?per_page=$efforts&page=$page&athlete_id=$athlete_id");
-#  } else {
-#    return $self->auth->get_api("/athletes/$self->{id}/all_efforts?per_page=$efforts&page=$page");
-#  }
-#};
+  $athlete->list_records([page => 2], [efforts => 100])'
+
+Returns an arrayRef K|Q of Mountain + Course record Segment effort objects for the instantiated athlete. Takes 2 optional
+parameters of 'page' and 'efforts'.
+
+The results are paginated and a maxium of 200 results can be returned
+per page.
+
+=cut
+
+use WebService::Strava::Athlete::Segment_Effort;
+
+method list_records(:$efforts = 25,:$page = 1) {
+  # TODO: Handle pagination better use #4's solution when found.
+  my $records = $self->auth->get_api("/athletes/$self->{id}/koms?per_page=$efforts&page=$page");
+  my $index = 0;
+  foreach my $record (@{$records}) {
+    @{$records}[$index] = WebService::Strava::Athlete::Segment_Effort->new(id => $record->{id}, auth => $self->auth, _build => 0);
+    $index++;
+  }
+  return $records;
+};
 
 1;
