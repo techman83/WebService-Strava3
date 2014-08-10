@@ -5,7 +5,7 @@ use feature qw(say);
 use WebService::Strava;
 use Data::Dumper;
 
-$ENV{STRAVA_DEGUG} = 1;
+$ENV{STRAVA_DEBUG} = 1;
 
 my $strava = WebService::Strava->new();
 
@@ -24,6 +24,12 @@ my $strava = WebService::Strava->new();
 
 #my $effort = $strava->effort("4101511026");
 
-my $activity = $strava->activity("5357306");
+#my $activity = $strava->activity("5357306");
 
-print Dumper($activity);
+#my $records = $strava->athlete->list_records();
+#@{$records}[0]->retrieve;
+#@{$records}[0]->segment->retrieve;
+
+my $activities = $strava->list_activities();
+
+print Dumper($activities);
