@@ -8,6 +8,7 @@ use Method::Signatures;
 use Scalar::Util qw(looks_like_number);
 use Scalar::Util::Reftype;
 use Carp qw(croak);
+use experimental 'switch';
 use Data::Dumper;
 
 # ABSTRACT: A Strava Segment Object
@@ -93,31 +94,35 @@ sub BUILD {
 
 method _build_segment() {
   my $segment = $self->auth->get_api("/segments/$self->{id}");
-  
-  # TODO: Research a better way to do this.
-  $self->{name} = $segment->{name};
-  $self->{activity_type} = $segment->{activity_type};
-  $self->{distance} = $segment->{distance};
-  $self->{average_grade} = $segment->{average_grade};
-  $self->{maximum_grade} = $segment->{maxiumum_grade};
-  $self->{elevation_high} = $segment->{elevation_high};
-  $self->{elevation_low} = $segment->{elevation_low};
-  $self->{start_latlng} = $segment->{start_latlng};
-  $self->{end_latlng} = $segment->{end_latlng};
-  $self->{climb_category} = $segment->{climb_category};
-  $self->{city} = $segment->{city};
-  $self->{state} = $segment->{state};
-  $self->{private} = $segment->{private};
-  $self->{starred} = $segment->{starred};
-  $self->{star_count} = $segment->{star_count};
-  $self->{map} = $segment->{map};
-  $self->{country} = $segment->{country};
-  $self->{athlete_count} = $segment->{athlete_count};
-  $self->{resource_state} = $segment->{resource_state};
-  $self->{effort_count} = $segment->{effort_count};
-  $self->{total_elevation_gain} = $segment->{total_elevation_gain};
+ 
+  foreach my $key (keys %{ $segment }) {
+    given ( $key ) {
+      when      ("athlete")   { $self->_instantiate("Athlete", $key, $segment->{$key}); }
+      default                 { $self->{$key} = $segment->{$key}; }
+    }
+  }
 
   return;
+}
+
+use WebService::Strava::Athlete;
+
+method _instantiate($type, $key, $data) {
+  $self->{$key} = "WebService::Strava::$type"->new(auth => $self->auth, id => $data->{id}, _build => 0);
+  return;
+}
+
+=method retrieve()
+
+  $segment->retrieve();
+
+When a Segment object is lazy loaded, you can call retrieve it by calling
+this method.
+
+=cut
+
+method retrieve() {
+  $self->_build_segment();
 }
 
 =method list_efforts()
