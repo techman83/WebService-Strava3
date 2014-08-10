@@ -8,6 +8,7 @@ use Method::Signatures;
 use Scalar::Util qw(looks_like_number);
 use Scalar::Util::Reftype;
 use Carp qw(croak);
+use experimental 'switch';
 use Data::Dumper;
 
 # ABSTRACT: A Strava Segment Object
@@ -27,8 +28,10 @@ use Data::Dumper;
 
 # Validation functions
 
-my $Num = sub {
-  croak "$_[0] isn't a number" unless looks_like_number $_[0];
+my $Id = sub {
+  if ($_[0]) {
+    croak "$_[0] isn't a valid id" unless looks_like_number $_[0];
+  }
 };
 
 my $Ref = sub {
@@ -57,7 +60,7 @@ around BUILDARGS => sub {
 has 'auth'            => ( is => 'ro', required => 1, isa => $Ref );
 
 # Defaults + Required
-has 'id'                      => ( is => 'ro', required => 1, isa => $Num );
+has 'id'                      => ( is => 'ro', isa => $Id );
 has '_build'                  => ( is => 'ro', default => sub { 1 }, isa => $Bool );
 
 # Segment API
@@ -97,38 +100,40 @@ sub BUILD {
 }
 
 method _build_athlete() {
-  my $athlete = $self->auth->get_api("/athletes/$self->{id}");
-  
-  # TODO: Research a better way to do this.
-  $self->{name} = $athlete->{name};
-  $self->{resource_state} = $athlete->{resource_state};
-  $self->{firstname} = $athlete->{firstname};
-  $self->{lastname} = $athlete->{lastname};
-  $self->{profile_medium} = $athlete->{profile_medium};
-  $self->{profile} = $athlete->{profile};
-  $self->{city} = $athlete->{city};
-  $self->{state} = $athlete->{state};
-  $self->{country} = $athlete->{country};
-  $self->{sex} = $athlete->{sex};
-  $self->{friend} = $athlete->{friend};
-  $self->{follower} = $athlete->{follower};
-  $self->{premium} = $athlete->{premium};
-  $self->{created_at} = $athlete->{created_at};
-  $self->{updated_at} = $athlete->{updated_at};
-  $self->{approve_followers} = $athlete->{approve_followers};
-  $self->{follower_count} = $athlete->{follower_count};
-  $self->{friend_count} = $athlete->{friend_count};
-  $self->{mutual_friend_count} = $athlete->{mutual_friend_count};
-  $self->{date_preference} = $athlete->{date_preference};
-  $self->{measurement_preference} = $athlete->{measurement_preference};
-  $self->{email} = $athlete->{email};
-  $self->{ftp} = $athlete->{ftp};
-  $self->{clubs} = $athlete->{clubs};
-  $self->{bikes} = $athlete->{bikes};
-  $self->{shoes} = $athlete->{shoes};
+  my $athlete;
+  if ($self->id) {
+    $athlete = $self->auth->get_api("/athletes/$self->{id}");
+  } else {
+    $athlete = $self->auth->get_api("/athlete");
+  }
+ 
+  foreach my $key (keys %{ $athlete }) {
+    given ( $key ) {
+      when      (/bikes/)   { $self->_instantiate("Athlete::Gear::Bike", $key, $athlete->{$key}); }
+      when      (/shoes/)   { $self->_instantiate("Athlete::Gear::Shoe", $key, $athlete->{$key}); }
+      when      (/clubs/)   { $self->_instantiate("Club", $key, $athlete->{$key}); }
+      default               { $self->{$key} = $athlete->{$key}; }
+    }
+  }
   
   return;
 }
+
+use WebService::Strava::Athlete::Gear::Bike;
+use WebService::Strava::Athlete::Gear::Shoe;
+use WebService::Strava::Club;
+
+method _instantiate($type, $key, $data) {
+  my $index = 0;
+  no strict 'refs';
+  foreach my $item (@{$data}) {
+    @{$data}[$index] = "WebService::Strava::$type"->new(auth => $self->auth, id => $item->{id}, _build => 0);
+    $index++;
+  }
+  $self->{$key} = $data;
+  return;
+}
+
 
 #=method list_efforts()
 #
