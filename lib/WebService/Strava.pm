@@ -72,7 +72,7 @@ method segment($id) {
 
 use WebService::Strava::Athlete;
 
-method athlete($id) {
+method athlete($id?) {
   return WebService::Strava::Athlete->new(id =>$id, auth => $self->auth);
 }
 
