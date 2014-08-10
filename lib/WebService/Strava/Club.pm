@@ -88,6 +88,15 @@ method _build_club() {
   return;
 }
 
+=method retrieve()
+
+  $club->retrieve();
+
+When a Club object is lazy loaded, you can call retrieve it by calling
+this method.
+
+=cut
+
 method retrieve() {
   $self->_build_club();
 }
