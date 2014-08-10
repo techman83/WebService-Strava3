@@ -5,6 +5,10 @@ use strict;
 use warnings;
 use Moo;
 use Method::Signatures;
+use Scalar::Util qw(looks_like_number);
+use Carp qw(croak);
+use Scalar::Util::Reftype;
+use experimental 'switch';
 use Data::Dumper;
 
 # ABSTRACT: A Strava Segment Object
@@ -13,9 +17,7 @@ use Data::Dumper;
 
 =head1 SYNOPSIS
 
-  my $segment = WebService::Strava::Segment->new( auth => $auth, id => '229781' );
-
-  my $segment = WebService::Strava::Segment->new( auth => $auth, id => '229781' );
+  my $effort = WebService::Strava::Athlete::Segment_Effort->new( auth => $auth, id => '229781' );
 
 =head1 DESCRIPTION
 
@@ -24,6 +26,103 @@ use Data::Dumper;
 
 =cut
 
-# Method List starred segments
+# Validation functions
+
+my $Ref = sub {
+  croak "auth isn't a 'WebService::Strava::Auth' object!" unless reftype( $_[0] )->class eq "WebService::Strava::Auth";
+};
+
+my $Bool = sub {
+  croak "$_[0] must be 0|1" unless $_[0] =~ /^[01]$/;
+};
+
+my $Num = sub {
+  croak "$_[0] isn't a valid id" unless looks_like_number $_[0];
+};
+
+# Debugging hooks in case things go weird. (Thanks @pjf)
+
+around BUILDARGS => sub {
+  my $orig  = shift;
+  my $class = shift;
+  
+  if ($WebService::Strava::DEBUG) {
+    warn "Building task with:\n";
+    warn Dumper(\@_), "\n";
+  }
+  
+  return $class->$orig(@_);
+};
+
+# Authentication Object
+has 'auth'            => ( is => 'ro', required => 1, isa => $Ref );
+
+# Defaults + Required
+has 'id'                      => ( is => 'ro', required => 1, isa => $Num);
+has '_build'                  => ( is => 'ro', default => sub { 1 }, isa => $Bool );
+
+# Segment Effort
+has 'name'                    => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'resource_state'          => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'activity'                => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'elapsed_time'            => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'moving_time'             => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'start_date'              => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'start_date_local'        => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'distance'                => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'start_index'             => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'end_index'               => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'average_cadence'         => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'average_watts'           => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'average_heartrate'       => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'max_heartrate'           => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'segment'                 => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'kom_rank'                => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'pr_rank'                 => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+has 'hidden'                  => ( is => 'ro', lazy => 1, builder => '_build_effort' );
+
+sub BUILD {
+  my $self = shift;
+
+  if ($self->{_build}) {
+    $self->_build_effort();
+  }
+  return;
+}
+
+method _build_effort() {
+  my $effort = $self->auth->get_api("/segment_efforts/$self->{id}");
+ 
+  foreach my $key (keys %{ $effort }) {
+    given ( $key ) {
+      when      (/athlete/)   { $self->_instantiate("Athlete", $key, $effort->{$key}); }
+      when      (/segment/)   { $self->_instantiate("Segment", $key, $effort->{$key}); }
+      default                 { $self->{$key} = $effort->{$key}; }
+    }
+  }
+
+  return;
+}
+
+use WebService::Strava::Athlete;
+use WebService::Strava::Segment;
+
+method _instantiate($type, $key, $data) {
+  $self->{$key} = "WebService::Strava::$type"->new(auth => $self->auth, id => $data->{id}, _build => 0);
+  return;
+}
+
+=method retrieve()
+
+  $effort->retrieve();
+
+When a Effort object is lazy loaded, you can call retrieve it by calling
+this method.
+
+=cut
+
+method retrieve() {
+  $self->_build_effort();
+}
 
 1;
