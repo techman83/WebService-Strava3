@@ -88,6 +88,15 @@ method _build_gear() {
   return;
 }
 
+=method retrieve()
+
+  $gear->retrieve();
+
+When a Gear object is lazy loaded, you can call retrieve it by calling
+this method.
+
+=cut
+
 method retrieve() {
   $self->_build_gear();
 }
