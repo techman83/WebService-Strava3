@@ -56,6 +56,16 @@ method athlete($id?) {
   return WebService::Strava::Athlete->new(id =>$id, auth => $self->auth);
 }
 
+=method activity 
+
+=cut
+
+use WebService::Strava::Athlete::Activity;
+
+method activity($id) {
+  return WebService::Strava::Athlete::Activity->new(id =>$id, auth => $self->auth);
+}
+
 =method segment
 
   $strava->segment($id);
