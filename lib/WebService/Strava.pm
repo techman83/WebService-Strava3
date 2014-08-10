@@ -56,16 +56,6 @@ method athlete($id?) {
   return WebService::Strava::Athlete->new(id =>$id, auth => $self->auth);
 }
 
-=method activity 
-
-=cut
-
-use WebService::Strava::Athlete::Activity;
-
-method activity($id) {
-  return WebService::Strava::Athlete::Activity->new(id =>$id, auth => $self->auth);
-}
-
 =method segment
 
   $strava->segment($id);
@@ -101,6 +91,43 @@ use WebService::Strava::Athlete::Segment_Effort;
 method effort($id) {
   return WebService::Strava::Athlete::Segment_Effort->new(id =>$id, auth => $self->auth);
 }
+
+=method activity
+
+=cut
+
+use WebService::Strava::Athlete::Activity;
+
+method activity($id) {
+  return WebService::Strava::Athlete::Activity->new(id =>$id, auth => $self->auth);
+}
+
+=method list_activities()
+
+  $athlete->list_activities([page => 2], [activities => 100]), [before => 1407665853], [after => 1407665853] '
+
+Returns an arrayRef activities for the current authenticated user. Takes 4 optional
+parameters of 'page', 'activities' (per page), 'before' (activies before unix epoch),
+and 'after' (activities after unix epoch).
+
+The results are paginated and a maxium of 200 results can be returned
+per page.
+
+=cut
+
+method list_activities(:$activities = 25, :$page = 1, :$before?, :$after?) {
+  # TODO: Handle pagination better use #4's solution when found.
+  my $url = "/athlete/activities?per_page=$activities&page=$page";
+  $url .= "&before=$before" if $before;
+  $url .= "&before=$after" if $after;
+  my $data = $self->auth->get_api("$url");
+  my $index = 0;
+  foreach my $activity (@{$data}) {
+    @{$data}[$index] = WebService::Strava::Athlete::Activity->new(id => $activity->{id}, auth => $self->auth, _build => 0);
+    $index++;
+  }
+  return $data;
+};
 
 =head1 ACKNOWLEDGEMENTS
 
