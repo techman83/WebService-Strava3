@@ -148,6 +148,9 @@ method get_api($api_path) {
   my $response = $self->auth->get($self->{api_base}.$api_path);
   my $json = $response->decoded_content;
   if (! valid_json($json) ) {
+    if ($ENV{STRAVA_DEBUG}) {
+      say Dumper($json);
+    }
     croak("Something went wrong, a JSON string wasn't returned");
   }
   return decode_json($json);
