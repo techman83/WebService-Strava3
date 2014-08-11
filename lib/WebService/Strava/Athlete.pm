@@ -140,7 +140,7 @@ method _instantiate($type, $key, $data) {
 Returns an arrayRef K|Q of Mountain + Course record Segment effort objects for the instantiated athlete. Takes 2 optional
 parameters of 'page' and 'efforts'.
 
-The results are paginated and a maxium of 200 results can be returned
+The results are paginated and a maximum of 200 results can be returned
 per page.
 
 =cut

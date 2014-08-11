@@ -107,10 +107,10 @@ method activity($id) {
   $athlete->list_activities([page => 2], [activities => 100]), [before => 1407665853], [after => 1407665853] '
 
 Returns an arrayRef activities for the current authenticated user. Takes 4 optional
-parameters of 'page', 'activities' (per page), 'before' (activies before unix epoch),
+parameters of 'page', 'activities' (per page), 'before' (activities before unix epoch),
 and 'after' (activities after unix epoch).
 
-The results are paginated and a maxium of 200 results can be returned
+The results are paginated and a maximum of 200 results can be returned
 per page.
 
 =cut
