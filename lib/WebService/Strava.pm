@@ -56,6 +56,26 @@ method athlete($id?) {
   return WebService::Strava::Athlete->new(id =>$id, auth => $self->auth);
 }
 
+=method clubs
+
+  $strava->clubs([1]);
+
+Returns an arrayRef of L<WebService::Strava::Club> for the currently
+authenticated user. Takes an optional 1 or 0 (default 0) that will retrieve
+all club details.
+
+=cut
+
+method clubs($build = 0) {
+  my $data = $self->auth->get_api("/athlete/clubs");
+  my $index = 0;
+  foreach my $club (@{$data}) {
+    @{$data}[$index] = WebService::Strava::Club->new(id => $club->{id}, auth => $self->auth, _build => $build);
+    $index++;
+  }
+  return $data;
+}
+
 =method segment
 
   $strava->segment($id);
@@ -84,6 +104,11 @@ method segment($id) {
 
 =method effort
 
+  $strava->effort($id);
+
+Takes an mandatory id and will retrieve a
+L<WebService::Strava::Athlete::Segment_Effort> with details about the Segment Effort ID retrieved.
+
 =cut
 
 use WebService::Strava::Athlete::Segment_Effort;
@@ -93,6 +118,11 @@ method effort($id) {
 }
 
 =method activity
+
+  $strava->activity($id);
+
+Takes an mandatory id and will retrieve a
+L<WebService::Strava::Athlete::Activity> with details about the Activity ID retrieved.
 
 =cut
 
