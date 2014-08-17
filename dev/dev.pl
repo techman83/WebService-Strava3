@@ -30,6 +30,12 @@ my $strava = WebService::Strava->new();
 #@{$records}[0]->retrieve;
 #@{$records}[0]->segment->retrieve;
 
-my $activities = $strava->list_activities();
+#my $activities = $strava->list_friends_activities();
+#@{$activities}[0]->retrieve();
+
+#my $clubs = $strava->clubs(1);
+my $club = @{$strava->clubs()}[0];
+#my $members = $club->list_members();
+my $activities = $club->list_activities();
 
 print Dumper($activities);
