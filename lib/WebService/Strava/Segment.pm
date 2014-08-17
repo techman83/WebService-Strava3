@@ -149,7 +149,7 @@ method list_efforts(:$efforts = 25,:$page = 1,:$athlete_id) {
   }
 };
 
-=method leadboard
+=method leaderboard
 
   $segment->leaderboard(
     [page => 2], 
@@ -162,7 +162,7 @@ method list_efforts(:$efforts = 25,:$page = 1,:$athlete_id) {
     [weight_class => |'0_124'|'125_149'|'150_164'|'165_179'|'180_199'|'200_plus'|'0_54'|'55_64'|'65_74'|'75_84'|'85_94'|'95_plus']);
 
 Returns the leaderboard for the current segment. Takes a number of optional parameters 
-including 'page' and 'activities' (per page). For more infomation regarding the leadboard
+including 'page' and 'activities' (per page). For more information regarding the leaderboard
 information visit the api documentation L<http://strava.github.io/api/v3/segments/#leaderboard>
 
 The results are paginated and a maximum of 200 results can be returned

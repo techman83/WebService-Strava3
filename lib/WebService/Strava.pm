@@ -32,7 +32,7 @@ L<https://www.strava.com/settings/api>
 
   strava setup
 
-Which can be called within your scipt via
+Which can be called within your script via
 
   $strava->setup();
 
