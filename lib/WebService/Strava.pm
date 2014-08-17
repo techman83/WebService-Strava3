@@ -125,6 +125,29 @@ method segment($id) {
   return WebService::Strava::Segment->new(id =>$id, auth => $self->auth);
 }
 
+=method list_starred_segments
+
+  $segment->list_starred_segments([page => 2], [activities => 100])
+
+Returns an arrayRef of starred L<WebService::Strava::Segment> objects for the current authenticated user. Takes 2 optional
+parameters of 'page' and 'activities' (per page).
+
+The results are paginated and a maximum of 200 results can be returned
+per page.
+
+=cut
+
+method list_starred_segments(:$activities = 25, :$page = 1) {
+  # TODO: Handle pagination better use #4's solution when found.
+  my $data = $self->auth->get_api("/segments/starred?per_page=$activities&page=$page");
+  my $index = 0;
+  foreach my $segment (@{$data}) {
+    @{$data}[$index] = WebService::Strava::Segment->new(id => $segment->{id}, auth => $self->auth, _build => 0);
+    $index++;
+  }
+  return $data;
+}
+
 =method effort
 
   $strava->effort($id);
@@ -173,7 +196,7 @@ method list_activities(:$activities = 25, :$page = 1, :$before?, :$after?) {
   # TODO: Handle pagination better use #4's solution when found.
   my $url = "/athlete/activities?per_page=$activities&page=$page";
   $url .= "&before=$before" if $before;
-  $url .= "&before=$after" if $after;
+  $url .= "&after=$after" if $after;
   my $data = $self->auth->get_api("$url");
   my $index = 0;
   foreach my $activity (@{$data}) {
@@ -181,7 +204,7 @@ method list_activities(:$activities = 25, :$page = 1, :$before?, :$after?) {
     $index++;
   }
   return $data;
-};
+}
 
 =method list_friends_activities
 
@@ -204,7 +227,7 @@ method list_friends_activities(:$activities = 25, :$page = 1) {
     $index++;
   }
   return $data;
-};
+}
 
 =head1 ACKNOWLEDGEMENTS
 
