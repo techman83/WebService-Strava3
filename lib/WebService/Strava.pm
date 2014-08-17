@@ -18,11 +18,23 @@ our $DEBUG = $ENV{STRAVA_DEBUG} || 0;
 
     use WebService::Strava;
 
-    my $strava = WebService::Strava->new );
+    my $strava = WebService::Strava->new();
 
 =head1 DESCRIPTION
 
-  I shall write one...
+Provides an abstraction layer to version 3 of the  Strava API. L<http://strava.github.io/api/v3/>.
+
+Attempts to provide a few logical shortcut methods and provide simple OAuth2 abstraction to take
+the hassle out of accessing it in a scripted manner.
+
+You can use the cli client to provide an easy setup after configuring api access in you strava profile
+L<https://www.strava.com/settings/api>
+
+  strava setup
+
+Which can be called within your scipt via
+
+  $strava->setup();
 
 =cut
 
@@ -63,6 +75,17 @@ method athlete($id?) {
 Returns an arrayRef of L<WebService::Strava::Club> for the currently
 authenticated user. Takes an optional 1 or 0 (default 0) that will retrieve
 all club details.
+
+After instantiation it is possible to retrieve members associated with the club.
+
+  my $club = @{$strava->clubs()}[0];
+  $club->list_members([page => 2], [activities => 100]);
+
+Returns an arrayRef athletes for the Club. Takes 2 optional
+parameters of 'page' and 'members' (per page).
+
+The results are paginated and a maximum of 200 results can be returned
+per page.
 
 =cut
 
@@ -134,10 +157,11 @@ method activity($id) {
 
 =method list_activities
 
-  $athlete->list_activities([page => 2], [activities => 100], [before => 1407665853], [after => 1407665853])
+  $athlete->list_activities([page => 2], [activities => 100], [before => 1407665853], [after => 1407665853]);
 
-Returns an arrayRef activities for the current authenticated user. Takes 4 optional
-parameters of 'page', 'activities' (per page), 'before' (activities before unix epoch),
+Returns an arrayRef of L<WebService::Strava::Athlete::Activity> objects 
+for the current authenticated user. Takes 4 optional parameters of 'page', 
+'activities' (per page), 'before' (activities before unix epoch),
 and 'after' (activities after unix epoch).
 
 The results are paginated and a maximum of 200 results can be returned
