@@ -102,9 +102,9 @@ method activity($id) {
   return WebService::Strava::Athlete::Activity->new(id =>$id, auth => $self->auth);
 }
 
-=method list_activities()
+=method list_activities
 
-  $athlete->list_activities([page => 2], [activities => 100]), [before => 1407665853], [after => 1407665853] '
+  $athlete->list_activities([page => 2], [activities => 100], [before => 1407665853], [after => 1407665853])
 
 Returns an arrayRef activities for the current authenticated user. Takes 4 optional
 parameters of 'page', 'activities' (per page), 'before' (activities before unix epoch),
@@ -121,6 +121,29 @@ method list_activities(:$activities = 25, :$page = 1, :$before?, :$after?) {
   $url .= "&before=$before" if $before;
   $url .= "&before=$after" if $after;
   my $data = $self->auth->get_api("$url");
+  my $index = 0;
+  foreach my $activity (@{$data}) {
+    @{$data}[$index] = WebService::Strava::Athlete::Activity->new(id => $activity->{id}, auth => $self->auth, _build => 0);
+    $index++;
+  }
+  return $data;
+};
+
+=method list_friends_activities
+
+  $athlete->list_activities([page => 2], [activities => 100])
+
+Returns an arrayRef activities for friends of the current authenticated user. Takes 2 optional
+parameters of 'page' and 'activities' (per page).
+
+The results are paginated and a maximum of 200 results can be returned
+per page.
+
+=cut
+
+method list_friends_activities(:$activities = 25, :$page = 1) {
+  # TODO: Handle pagination better use #4's solution when found.
+  my $data = $self->auth->get_api("/activities/following?per_page=$activities&page=$page");
   my $index = 0;
   foreach my $activity (@{$data}) {
     @{$data}[$index] = WebService::Strava::Athlete::Activity->new(id => $activity->{id}, auth => $self->auth, _build => 0);
