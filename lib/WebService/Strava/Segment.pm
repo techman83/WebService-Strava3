@@ -149,4 +149,37 @@ method list_efforts(:$efforts = 25,:$page = 1,:$athlete_id) {
   }
 };
 
+=method leadboard
+
+  $segment->leaderboard(
+    [page => 2], 
+    [activities => 100], 
+    [gender => M|F], 
+    [following => 1|0], 
+    [clubid => 123456], 
+    [date_range => 'this_year'|'this_month'|'this_week'|'today'], 
+    [age_group => '0_24'|'25_34'|'35_44'|'45_54'|'55_64'|'65_plus'],
+    [weight_class => |'0_124'|'125_149'|'150_164'|'165_179'|'180_199'|'200_plus'|'0_54'|'55_64'|'65_74'|'75_84'|'85_94'|'95_plus']);
+
+Returns the leaderboard for the current segment. Takes a number of optional parameters 
+including 'page' and 'activities' (per page). For more infomation regarding the leadboard
+information visit the api documentation L<http://strava.github.io/api/v3/segments/#leaderboard>
+
+The results are paginated and a maximum of 200 results can be returned
+per page.
+
+=cut
+
+method leaderboard(:$activities = 25, :$page = 1, :$gender?, :$age_group?, :$weight_class?, :$following?, :$club?, :$date_range?, ) {
+  # TODO: Handle pagination better use #4's solution when found.
+  my $url = "/segments/$self->{id}/leaderboard?per_page=$activities&page=$page";
+  $url .= "&age_group=$age_group" if $age_group;
+  $url .= "&gender=$gender" if $gender;
+  $url .= "&weight_class=$weight_class" if $weight_class;
+  $url .= "&following=$following" if $following;
+  $url .= "&club=$club" if $club;
+  $url .= "&date_range=$date_range" if $date_range;
+  return $self->auth->get_api("$url");
+}
+
 1;
