@@ -34,8 +34,14 @@ my $strava = WebService::Strava->new();
 #@{$activities}[0]->retrieve();
 
 #my $clubs = $strava->clubs(1);
-my $club = @{$strava->clubs()}[0];
+#my $club = @{$strava->clubs()}[0];
 #my $members = $club->list_members();
-my $activities = $club->list_activities();
+#my $activities = $club->list_activities();
+#my $starred = $strava->list_starred_segments();
 
-print Dumper($activities);
+#my $segment = $strava->segment(3468536);
+#my $leaderboard = $segment->leaderboard();
+
+my $starred = $strava->list_starred_segments();
+
+print Dumper($starred);
