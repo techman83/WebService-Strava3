@@ -127,10 +127,12 @@ method retrieve() {
 
 =method list_efforts()
 
-  $segment->list_efforts([athlete_id => 123456], [page => 2], [efforts => 100])'
+  $segment->list_efforts([athlete_id => 123456], [page => 2], [efforts => 100], [raw => 1])'
 
-Returns the Segment efforts for a particular segment. Takes 3 optional
-parameters of 'athlete_id', 'page' and 'efforts'.
+Returns the Segment efforts for a particular segment. Takes 4 optional
+parameters of 'athlete_id', 'page', 'efforts' and 'raw'. Raw will return the 
+an array segment_effort data instead of L<WebService::Strava::Athlete::Segment_Effort>
+objects.
 
   * 'athelete_id' will return the segment efforts (if any) for the athelete
     in question.
@@ -140,13 +142,24 @@ per page.
 
 =cut
 
-method list_efforts(:$efforts = 25,:$page = 1,:$athlete_id) {
+method list_efforts(:$efforts = 25,:$page = 1,:$athlete_id, :$raw = 0) {
   # TODO: Handle pagination better #4
+  my $data;
   if ($athlete_id) {
-    return $self->auth->get_api("/segments/$self->{id}/all_efforts?per_page=$efforts&page=$page&athlete_id=$athlete_id");
+    $data = $self->auth->get_api("/segments/$self->{id}/all_efforts?per_page=$efforts&page=$page&athlete_id=$athlete_id");
   } else {
-    return $self->auth->get_api("/segments/$self->{id}/all_efforts?per_page=$efforts&page=$page");
+    $data = $self->auth->get_api("/segments/$self->{id}/all_efforts?per_page=$efforts&page=$page");
   }
+  
+  if (! $raw) {
+    my $index = 0;
+    foreach my $effort (@{$data}) {
+      @{$data}[$index] = WebService::Strava::Athlete::Segment_Effort->new(id => $effort->{id}, auth => $self->auth, _build => 0);
+      $index++;
+    }
+  }
+
+  return $data;
 };
 
 =method leaderboard
@@ -179,7 +192,7 @@ method leaderboard(:$activities = 25, :$page = 1, :$gender?, :$age_group?, :$wei
   $url .= "&following=$following" if $following;
   $url .= "&club=$club" if $club;
   $url .= "&date_range=$date_range" if $date_range;
-  return $self->auth->get_api("$url");
+  return $self->auth->get_api("$url")->{entries};
 }
 
 1;
