@@ -109,9 +109,14 @@ L<WebService::Strava::Segment> with details about the Segment ID retrieved.
 After instantiation it is possible to retrieve efforts listed for that segment. It 
 takes 3 optional named parameters of 'athlete_id', 'page' and 'efforts'.
 
-  $segment->list_efforts([athlete_id => 123456], [page => 2], [efforts => 100])'
+  $segment->list_efforts([athlete_id => 123456], [page => 2], [efforts => 100], [raw => 1])'
 
- * 'athelete_id' will return the segment efforts (if any) for the athelete
+Returns the Segment efforts for a particular segment. Takes 4 optional
+parameters of 'athlete_id', 'page', 'efforts' and 'raw'. Raw will return the 
+an array segment_effort data instead of L<WebService::Strava::Athlete::Segment_Effort>
+objects.
+
+  * 'athelete_id' will return the segment efforts (if any) for the athelete
     in question.
 
 The results are paginated and a maximum of 200 results can be returned
