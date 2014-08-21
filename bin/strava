@@ -3,8 +3,9 @@ use v5.10.0;
 use strict;
 use warnings;
 use WebService::Strava;
+use Getopt::Long;
+use File::Spec;
 use Data::Dumper;
-use utf8::all;
 
 # PODNAME: strava
 
@@ -49,15 +50,13 @@ Set the authorization callback domain to: urn:ietf:wg:oauth:2.0:oob
 
 =head2 Configuration
 
-You'll need to have a ~/.stravarc file that looks like 
-the following:
+You will need the following
 
-    [auth]
-    client_id     = xxxxx
-    client_secret = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  client_id     = xxxxx
+  client_secret = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 You can get these values by going to https://www.strava.com/settings/api
-After registration simply run:
+and registering your application. After registration simply run:
 
     strava setup
 
@@ -65,6 +64,10 @@ After registration simply run:
 
 This is a command-line client for the L<Strava|http://strava.com/>
 service.  Use C<strava> with no arguments for help.
+
+This interface needs expanding! Submit issues with feature requests and
+I will look at adding them, I currently don't have any use cases for
+it.
 
 =head1 BUGS/Features Requests
 
@@ -79,28 +82,53 @@ L<WebService::Strava3>
 
 =cut
 
-if (not @ARGV or $ARGV[0] eq 'help') {
-    say q{
-    Usage:
-
-    strava setup                          : Configure Oauth2 authentication
-
-    Debugging commands:
-    
-    strava version                          : Show version information
-
-    For more documentation, use `perldoc strava`.
-    };
-
-    exit 1;
-}
-
+# $progname is just a nicer-formatted version of $0 (our command name)
 my $PROGNAME = (File::Spec->splitpath($0))[2];
 $PROGNAME ||= 'strava';
 
+my $strava = WebService::Strava->new();
+
+if (! @ARGV) {
+  &print_usage;
+}
+
+my $getopts_rc = GetOptions(
+  "setup"       => \&setup,
+  "version"     => \&version,
+
+  "help|?"        => \&print_usage,
+);
+
+sub print_usage {
+  say q{
+  Usage:
+
+  strava setup                          : Configure Oauth2 authentication
+
+  Debugging commands:
+  
+  strava version                        : Show version information
+
+  For more documentation, use `perldoc strava`.
+  };
+
+  exit 1;
+}
 
 
+sub version {
+  $::VERSION ||= "Unreleased";
+  say "strava version                 : $::VERSION";
+  say "WebService::Strava version     : ", $strava->VERSION;
+}
 
+sub setup {
+  $strava->auth->setup;
+  my $athlete = $strava->athlete();
 
+  if ($athlete->{firstname}) {
+    say "Congratulations $athlete->{firstname}, you appear to have authenticated successfully!";
+  }
+}
 
 
