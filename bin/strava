@@ -78,7 +78,7 @@ Contributions are more than welcome!
 
 =head1 SEE ALSO
 
-L<WebService::Strava3>
+L<WebService::Strava>
 
 =cut
 
