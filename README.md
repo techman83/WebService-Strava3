@@ -14,3 +14,26 @@ strava setup
 ```
 
 It will generate a file `~/.stravarc` where the authentication information is stored.
+
+It will be available on CPAN soon, but you can install after cloning from github and
+using cpanminus.
+
+Grab cpanm + local::lib
+```bash
+$ sudo apt-get install cpanminus liblocal-lib-perl
+```
+
+Configure local::lib if you haven't already done so:
+
+```bash
+$ perl -Mlocal::lib >> ~/.bashrc
+$ eval $(perl -Mlocal::lib)
+```
+
+Install from git, you can then use:
+
+```bash
+$ dzil authordeps | cpanm
+$ dzil listdeps   | cpanm
+$ dzil install
+```
