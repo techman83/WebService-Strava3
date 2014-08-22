@@ -86,7 +86,7 @@ method setup() {
   );
 
   # Get authentican token string
-  say "Log into the Strava account and browse the following url\n";
+  say "Log into the Strava account and browse the following url";
   my $url = $oauth2->authorization_url();
   say $url;
   my $code = $self->prompt("Paste code result here");
