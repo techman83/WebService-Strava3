@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
 
 use strict;
-use Test::More tests => 4;;
+use Test::More tests => 5;;
 use WebService::Strava;
-use Data::Dumper;
+use Test::Warnings;
 
 my $strava = WebService::Strava->new();
 
