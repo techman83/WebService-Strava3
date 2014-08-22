@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
-use Test::More;
+use Test::More tests => 4;;
 use WebService::Strava;
 use Data::Dumper;
 
