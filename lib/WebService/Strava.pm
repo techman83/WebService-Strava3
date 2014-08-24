@@ -30,11 +30,11 @@ the hassle out of accessing it in a scripted manner.
 You can use the cli client to provide an easy setup after configuring api access in you strava profile
 L<https://www.strava.com/settings/api>
 
-  strava setup
+  strava --setup
 
-Which can be called within your script via
+Which can also be called within your script via
 
-  $strava->setup();
+  $strava->auth->setup();
 
 =cut
 

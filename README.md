@@ -10,7 +10,7 @@ Set the authorization callback domain to: http://127.0.0.1
 
 To setup your authentication run the following
 ```bash
-strava setup
+strava --setup
 ```
 
 It will generate a file `~/.stravarc` where the authentication information is stored.

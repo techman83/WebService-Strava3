@@ -18,11 +18,11 @@ use Data::Dumper;
 
 Usage:
 
-    strava setup                            : Configure Oauth2 authentication
+    strava --setup                            : Configure Oauth2 authentication
 
     Debugging commands:
     
-    strava version                          : Show version information
+    strava --version                          : Show version information
 
 =head1 SETUP
 
