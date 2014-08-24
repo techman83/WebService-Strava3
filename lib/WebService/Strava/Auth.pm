@@ -101,7 +101,7 @@ method _build_config() {
   if ( -e $self->{config_file} ) {
     $config = Config::Tiny->read( $self->{config_file} );
     unless ($config->{auth}{client_id} 
-            && $config->{auth}{client_id}) {
+            && $config->{auth}{client_secret}) {
       die <<"END_DIE";
 Cannot find user credentials in $self->{config_file}
 
@@ -114,7 +114,7 @@ the following:
 
 You can get these values by going to https://www.strava.com/settings/api
 
-Running 'strava setup' or \$strava->auth->setup will run you through
+Running 'strava --setup' or \$strava->auth->setup will run you through
 setting up Oauth2.
 
 END_DIE
@@ -127,6 +127,8 @@ END_DIE
 
 method _build_auth() {
   $self->config;
+  croak "Missing token, please re-run setup" unless $self->config->{auth}{token_string};
+
   my $oauth2 = LWP::Authen::OAuth2->new(
     client_id => $self->{config}{auth}{client_id},
     client_secret => $self->{config}{auth}{client_secret},
