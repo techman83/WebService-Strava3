@@ -1,7 +1,7 @@
-WebService-Strava3
+WebService-Strava3    ![Build Status](https://travis-ci.org/techman83/WebService-Strava3.svg?branch=master)
 ==================
 
-A Perl client to Version 3 of the Strava.com API - ![Build Status](https://travis-ci.org/techman83/WebService-Strava3.svg?branch=master)
+A Perl client to Version 3 of the Strava.com API
 
 You will need to register for a Client Secret + Access token here:
 https://www.strava.com/settings/api
@@ -36,4 +36,10 @@ Install from git, you can then use:
 $ dzil authordeps | cpanm
 $ dzil listdeps   | cpanm
 $ dzil install
+```
+
+or cpanm (once it's uploaded there):
+
+```bash
+cpanm WebService::Strava
 ```
