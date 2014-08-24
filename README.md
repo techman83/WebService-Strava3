@@ -1,4 +1,4 @@
-WebService-Strava3    ![Build Status](https://travis-ci.org/techman83/WebService-Strava3.svg?branch=master)
+WebService-Strava3    [![Build Status](https://travis-ci.org/techman83/WebService-Strava3.svg?branch=master)](https://travis-ci.org/techman83/WebService-Strava3)
 ==================
 
 A Perl client to Version 3 of the Strava.com API
