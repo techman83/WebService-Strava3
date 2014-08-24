@@ -1,7 +1,7 @@
 WebService-Strava3
 ==================
 
-A Perl client to Version 3 of the Strava.com API
+A Perl client to Version 3 of the Strava.com API - ![Build Status](https://travis-ci.org/techman83/WebService-Strava3.svg?branch=master)
 
 You will need to register for a Client Secret + Access token here:
 https://www.strava.com/settings/api
