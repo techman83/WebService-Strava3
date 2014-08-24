@@ -3,6 +3,7 @@ package WebService::Strava::Auth;
 use v5.010;
 use strict;
 use warnings;
+use experimental 'say';
 use Moo;
 use Method::Signatures;
 use Config::Tiny;

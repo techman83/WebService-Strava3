@@ -2,6 +2,7 @@
 use v5.10.0;
 use strict;
 use warnings;
+use experimental 'say';
 use WebService::Strava;
 use Getopt::Long;
 use File::Spec;
