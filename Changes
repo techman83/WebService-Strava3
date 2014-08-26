@@ -1,0 +1,6 @@
+{{$NEXT}}
+
+0.03    20140826 - 02:23:22 UTC
+        Ground up rewrite of WebService::Strava. Not backwards
+        compatible with previous releases. Previous release used
+        version 2 of the Strava API which is no longer available.
