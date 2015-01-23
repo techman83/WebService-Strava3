@@ -1,4 +1,4 @@
-WebService-Strava3    [![Build Status](https://travis-ci.org/techman83/WebService-Strava3.svg?branch=master)](https://travis-ci.org/techman83/WebService-Strava3)  [![Coverage Status](https://coveralls.io/repos/techman83/WebService-Strava3/badge.svg)](https://coveralls.io/r/techman83/WebService-Strava3)
+WebService-Strava3    [![Build Status](https://travis-ci.org/techman83/WebService-Strava3.svg?branch=master)](https://travis-ci.org/techman83/WebService-Strava3)  [![Coverage Status](https://coveralls.io/repos/techman83/WebService-Strava3/badge.svg?branch=master)](https://coveralls.io/r/techman83/WebService-Strava3?branch=master)
 ==================
 
 A Perl client to Version 3 of the Strava.com API
