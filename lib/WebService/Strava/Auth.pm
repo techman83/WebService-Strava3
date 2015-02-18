@@ -11,6 +11,8 @@ use LWP::Authen::OAuth2;
 use JSON qw(decode_json encode_json);
 use JSON::Parse 'valid_json';
 use Carp qw(croak);
+use File::Basename;
+use File::MimeInfo::Magic;
 use Data::Dumper;
 
 # ABSTRACT: A Strava Segment Object
@@ -151,14 +153,106 @@ method get_api($api_path) {
   my $response = $self->auth->get($self->{api_base}.$api_path);
   my $json = $response->decoded_content;
   if (! valid_json($json) ) {
-    if ($ENV{STRAVA_DEBUG}) {
-      say Dumper($json);
-    }
     croak("Something went wrong, a JSON string wasn't returned");
+  }
+  if ($ENV{STRAVA_DEBUG}) {
+    say Dumper($json);
   }
   return decode_json($json);
 }
 
+=method delete_api
+
+  $strava->auth->delete_api($url);
+
+Mainly used for an internal shortcut, but will return true on 
+success or false on failure. 
+
+=cut
+
+method delete_api($api_path) {
+  my $response = $self->auth->delete($self->{api_base}.$api_path);
+  if ($ENV{STRAVA_DEBUG}) {
+    say Dumper($response);
+  }
+  return $response->code == 204 ? 1 : 0;
+}
+
+=method post_api
+
+  $strava->auth->post_api($url,$content);
+
+Mainly used for an internal shortcut, but will return a parsed
+perl data structure of what the api returns. '$content' is expected 
+to be a plain perl data structure. The method will encode it to json.
+
+=cut
+
+method post_api($api_path,$content) {
+  my $response = $self->auth->post(
+    $self->{api_base}.$api_path,
+    Content => encode_json($content),
+  );
+
+  my $json = $response->decoded_content;
+  if (! valid_json($json) ) {
+    croak("Something went wrong, a JSON string wasn't returned");
+  }
+  if ($ENV{STRAVA_DEBUG}) {
+    say Dumper($json);
+  }
+  return decode_json($json);
+}
+
+=method uploads_api
+
+  $strava->auth->uploads_api($file,$type);
+
+Mainly used for an internal shortcut, but will return a parsed
+perl data structure of what the api returns.
+
+=over
+
+=item '$file'
+Expected to be a path to the file being uploaded.
+
+=item '$type'
+The Strava api accepts FIT, TCX and GPX files. There is no current
+logic to detect what sort is being uploaded (patches welcome), so
+you will need to set it which ever file your uploading. ie 'gpx' for 
+a GPX file.
+
+=back
+
+=cut
+
+method uploads_api($file,$type,$activity) {
+  my $filename = basename($file);
+  my $mimetype = mimetype($file);
+  my $response = $self->auth->post(
+    $self->{api_base}.'/uploads',
+    Content_Type => 'multipart/form-data',
+    Content => {
+      activity_type => lc($activity),
+      file =>  [ 
+        $file, 
+        $filename, 
+        Content_Type => $mimetype, 
+        'Content-Transfer-Encoding' => 'binary',
+      ], 
+      data_type => lc($type),
+    },
+  );
+
+  my $json = $response->decoded_content;
+  if (! valid_json($json) ) {
+    croak("Something went wrong, a JSON string wasn't returned");
+  }
+  if ($ENV{STRAVA_DEBUG}) {
+    say Dumper($json);
+  }
+  return decode_json($json);
+}
 
 method prompt($question,:$default) { # inspired from here: http://alvinalexander.com/perl/edu/articles/pl010005
   if ($default) {

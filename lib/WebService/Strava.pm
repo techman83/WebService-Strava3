@@ -234,6 +234,49 @@ method list_friends_activities(:$activities = 25, :$page = 1) {
   return $data;
 }
 
+=method upload_activity
+
+  $strava->upload_activity(file => '/path/to/sample.gpx', type => 'gpx', activity => 'ride');
+
+Uploads an activity to Strava. Returns an upload status object. 
+
+=cut
+
+method upload_activity(:$file, :$type = 'gpx', :$activity = 'ride') {
+  my $data = $self->auth->uploads_api($file,$type,$activity);
+  return $data;
+}
+
+=method upload_status
+
+  $strava->upload_status(id => '12345678');
+
+Given an upload id (returned by uploading an activity) you can check 
+the status of the request. Takes between 5 and 10 seconds for an 
+to be processed so keep in mind  there isn't any point in checking 
+more than once per second.
+
+=cut
+
+method upload_status(:$id) {
+  my $data = $self->auth->get_api("/uploads/$id");
+  return $data;
+}
+
+=method delete_activity
+
+  $strava->delete_activity(id => '12345678');
+
+Will delete a given activity. Returns true on success and false 
+upon failure
+
+=cut
+
+method delete_activity(:$id) {
+  my $data = $self->auth->delete_api("/activities/$id");
+  return $data;
+}
+
 =head1 ACKNOWLEDGEMENTS
 
 Fred Moyer <fred@redhotpenguin.com> - Giving me Co-Maint on WebService::Strava
