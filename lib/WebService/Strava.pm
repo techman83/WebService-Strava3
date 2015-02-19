@@ -271,7 +271,7 @@ and location, if available.
 Optional. Left blank if not provided.
 
 =item 'private'
-Sets the Acitivity to Private.
+Sets the Activity to Private.
 
 =item 'trainer'
 Optional integer, activities without lat/lng info in the file are 
