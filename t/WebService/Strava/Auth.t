@@ -32,7 +32,15 @@ sub user_testing {
 
   subtest 'Upload File' => sub {
     # Upload the file
-    my $upload = $auth->uploads_api('t/data/sample.gpx','gpx');
+    my $upload = $auth->uploads_api(
+      file => 't/data/sample.gpx',
+      type => 'gpx', 
+      activity_type => 'ride',
+      name => 'API Test', 
+      description => 'Testing the Perl API Client', 
+      private => '1', 
+      external_id => 'sample', 
+    );
     isnt($upload->{id},  undef, "Activity Uploaded");
     is($upload->{external_id}, "sample.gpx", "Filename returned correctly");
     
@@ -48,7 +56,14 @@ sub user_testing {
   
     isnt($activity->{activity_id}, undef, "Activity Processed");
     is($activity->{error}, undef, "No errors");
-  
+ 
+    # Check Activity Details
+    my $details = $auth->get_api("/activities/$activity->{activity_id}"); 
+    is($details->{type}, 'Ride', 'Type set correctly');
+    is($details->{private}, 1, 'Marked as private');
+    is($details->{description}, 'Testing the Perl API Client', 'Description Set');
+    is($details->{name}, 'API Test', 'Name set correctly');
+     
     # Delete it
     my $delete = $auth->delete_api("/activities/$activity->{activity_id}"); 
     is($delete, 1, "Activity Deleted");

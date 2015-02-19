@@ -206,42 +206,47 @@ method post_api($api_path,$content) {
 
 =method uploads_api
 
-  $strava->auth->uploads_api($file,$type);
+  $strava->auth->uploads_api(file => 'sample.gpx', type => 'gpx');
 
 Mainly used for an internal shortcut, but will return a parsed
 perl data structure of what the api returns.
 
-=over
-
-=item '$file'
-Expected to be a path to the file being uploaded.
-
-=item '$type'
-The Strava api accepts FIT, TCX and GPX files. There is no current
-logic to detect what sort is being uploaded (patches welcome), so
-you will need to set it which ever file your uploading. ie 'gpx' for 
-a GPX file.
-
-=back
-
 =cut
 
-method uploads_api($file,$type,$activity) {
+method uploads_api(
+  :$file,
+  :$type,
+  :$activity_type?,
+  :$name?,
+  :$description?,
+  :$private?,
+  :$trainer?,
+  :$external_id?,
+) {
   my $filename = basename($file);
   my $mimetype = mimetype($file);
+
+  my $content = { 
+    file =>  [ 
+      $file, 
+      $filename, 
+      Content_Type => $mimetype, 
+      'Content-Transfer-Encoding' => 'binary',
+    ], 
+    data_type => lc($type),
+  };
+
+  $content->{activity_type} = lc($activity_type) if $activity_type;
+  $content->{name} = $name if $name;
+  $content->{description} = $description if $description;
+  $content->{private} = $private if $private;
+  $content->{trainer} = $trainer if $trainer;
+  $content->{external_id} = $external_id if $external_id;
+
   my $response = $self->auth->post(
     $self->{api_base}.'/uploads',
     Content_Type => 'multipart/form-data',
-    Content => {
-      activity_type => lc($activity),
-      file =>  [ 
-        $file, 
-        $filename, 
-        Content_Type => $mimetype, 
-        'Content-Transfer-Encoding' => 'binary',
-      ], 
-      data_type => lc($type),
-    },
+    Content => $content,
   );
 
   my $json = $response->decoded_content;
