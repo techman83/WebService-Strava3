@@ -234,6 +234,110 @@ method list_friends_activities(:$activities = 25, :$page = 1) {
   return $data;
 }
 
+=method upload_activity
+
+  $strava->upload_activity(
+    file => '/path/to/sample.gpx', 
+    type => 'gpx'
+  );
+
+Uploads an activity to Strava. Returns an upload status hash. Takes
+the following named arguments: 
+
+=over
+
+=item 'file'
+Expected to be a path to the file being uploaded.
+
+=item 'type'
+The Strava api accepts following file types:  fit, fit.gz, tcx, 
+tcx.gz, gpx and  gpx.gz. There is no current logic to detect what 
+sort is being uploaded (patches welcome), so you will need to set 
+it which ever file your uploading. ie 'gpx' for a GPX file.
+
+=item 'activity_type'
+Optional, case insensitive string of following types (list may be 
+out of date check L<http://strava.github.io/api/v3/uploads/#post-file> 
+for up to date info): ride, run, swim, workout, hike, walk, 
+nordicski, alpineski, backcountryski, iceskate, inlineskate, kitesurf, 
+rollerski, windsurf, workout, snowboard, snowshoe. Type detected from 
+file overrides, uses athlete’s default type if not specified.
+
+=item 'name'
+Optional string, if not provided, will be populated using start date 
+and location, if available.
+
+=item 'description'
+Optional. Left blank if not provided.
+
+=item 'private'
+Sets the Activity to Private.
+
+=item 'trainer'
+Optional integer, activities without lat/lng info in the file are 
+auto marked as stationary, set to 1 to force.
+
+=item 'external_id'
+Optional string, data filename will be used by default but should 
+be a unique identifier.
+
+=back
+
+=cut
+
+method upload_activity(
+  :$file, 
+  :$type = 'gpx', 
+  :$activity_type?,
+  :$name?,
+  :$description?,
+  :$private?,
+  :$trainer?,
+  :$external_id?,
+) {
+  my $data = $self->auth->uploads_api(
+    file => $file, 
+    type => $type, 
+    activity_type => $activity_type,
+    name => $name, 
+    description => $description, 
+    private => $private, 
+    trainer => $trainer, 
+    external_id => $external_id, 
+  );
+  return $data;
+}
+
+=method upload_status
+
+  $strava->upload_status(id => '12345678');
+
+Given an upload id (returned by uploading an activity) you can check 
+the status of the request. Takes between 5 and 10 seconds for an 
+to be processed so keep in mind  there isn't any point in checking 
+more than once per second.
+
+=cut
+
+method upload_status(:$id) {
+  my $data = $self->auth->get_api("/uploads/$id");
+  return $data;
+}
+
+=method delete_activity
+
+  $strava->delete_activity(id => '12345678');
+
+Will delete a given activity. Returns true on success and false 
+upon failure
+
+=cut
+
+method delete_activity(:$id) {
+  my $data = $self->auth->delete_api("/activities/$id");
+  return $data;
+}
+
 =head1 ACKNOWLEDGEMENTS
 
 Fred Moyer <fred@redhotpenguin.com> - Giving me Co-Maint on WebService::Strava

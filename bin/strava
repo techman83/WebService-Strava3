@@ -6,6 +6,7 @@ use experimental 'say';
 use WebService::Strava;
 use Getopt::Long;
 use File::Spec;
+use File::Basename 'fileparse';
 use Data::Dumper;
 
 # PODNAME: strava
@@ -19,6 +20,7 @@ use Data::Dumper;
 Usage:
 
     strava --setup                            : Configure Oauth2 authentication
+    strava --upload /path/to/file.gpx         : Simple uploading of activities
 
     Debugging commands:
     
@@ -95,6 +97,7 @@ if (! @ARGV) {
 
 my $getopts_rc = GetOptions(
   "setup"       => \&setup,
+  "upload=s"    => \&upload,
   "version"     => \&version,
 
   "help|?"        => \&print_usage,
@@ -104,11 +107,12 @@ sub print_usage {
   say q{
   Usage:
 
-  strava setup                          : Configure Oauth2 authentication
+  strava --setup                          : Configure Oauth2 authentication
+  strava --upload /path/to/file.gpx       : Simple uploading of activities
 
   Debugging commands:
   
-  strava version                        : Show version information
+  strava --version                        : Show version information
 
   For more documentation, use `perldoc strava`.
   };
@@ -132,4 +136,22 @@ sub setup {
   }
 }
 
+sub upload {
+  my ($option, $value) = @_;
+
+  say "Uploading $value";
+  
+  my ($filename, $path, $suffix) = fileparse($value, qw(fit fit.gz tcx tcx.gz gpx gpx.gz));
+
+  my $upload = $strava->upload_activity(
+    file => $value,
+    type => $suffix, 
+  );
+  
+  if (! $upload->{error} ) {
+    say "Uploaded successfully, Upload ID: $upload->{id}";
+  } else {
+    say "Upload failed: $upload->{status}";
+  }
+}
 
