@@ -299,11 +299,11 @@ method upload_activity(
     file => $file, 
     type => $type, 
     activity_type => $activity_type,
-    type => $name, 
-    type => $description, 
-    type => $private, 
-    type => $trainer, 
-    type => $external_id, 
+    name => $name, 
+    description => $description, 
+    private => $private, 
+    trainer => $trainer, 
+    external_id => $external_id, 
   );
   return $data;
 }
