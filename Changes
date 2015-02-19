@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+0.04      2015-02-19 13:00:44+08:00 Australia/Perth
+
 0.03    20140826 - 02:23:22 UTC
         Ground up rewrite of WebService::Strava. Not backwards
         compatible with previous releases. Previous release used
