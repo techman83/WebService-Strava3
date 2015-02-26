@@ -5,6 +5,8 @@ use warnings;
 use WebService::Strava::Auth;
 use Moo;
 use Method::Signatures;
+use IO::Socket;
+use JSON 'from_json';
 use Test::Most;
 
 method test_with_auth($test, $number_tests) {
@@ -33,9 +35,6 @@ method test_with_dancer($test, $number_tests) {
       exec("t/bin/cached_api.pl");
     }
 
-    # Allow some time for the instance to spawn. TODO: Make this smarter
-    sleep 5;
-
     my $config->{auth} = {
       client_id => '1234',
       client_secret => 'abcdefghijklmnopqrstuv123456',
@@ -52,8 +51,31 @@ method test_with_dancer($test, $number_tests) {
       config => $config,
     );
 
-    $test->($auth, "Testing Cached API");
-  
+    # Lets check to see if we have a dancer2 instance up
+    my $count = 0;
+    while ($count < 10) {
+      my $sock = IO::Socket::INET->new('localhost:3001');
+      if ($sock && $sock->connected) {
+        last;
+      }
+      sleep 1;
+      $count++;
+    }
+
+    # And check if we're getting a JSON response
+    my $data;
+    eval {
+      $data = from_json($auth->get("http://localhost:3001/athlete")->content);
+    } or do {
+      my $e = $@;
+      print("Failed parsing json: $e\n");
+    };
+
+    TODO: {
+      todo_skip "It seems offline testing doesn't work for you", $number_tests if (! $data || $count > 9);
+      $test->($auth, "Testing Cached API");
+    }
+
     # Kill Dancer
     kill 9, $pid;
   }
