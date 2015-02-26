@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+0.05      2015-02-26 13:31:07+08:00 Australia/Perth
+        Small Pod Fixes
+        Fix Auth.t testing failures. RT #102362 + Github #18
+
 0.04      2015-02-19 13:00:44+08:00 Australia/Perth
 
 0.03    20140826 - 02:23:22 UTC
