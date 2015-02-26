@@ -1,7 +1,5 @@
-package WebService::Strava::Test::Auth;
-
-use Dancer2;
-set serializer => 'JSON';
+package WebService::Strava::CachedAPI::Auth;
+use Dancer2 appname => 'WebService::Strava::CachedAPI';
 
 get '/athlete' => sub {
   {

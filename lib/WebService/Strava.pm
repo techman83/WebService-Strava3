@@ -246,16 +246,19 @@ the following named arguments:
 
 =over
 
-=item 'file'
+=item file
+
 Expected to be a path to the file being uploaded.
 
-=item 'type'
+=item type
+
 The Strava api accepts following file types:  fit, fit.gz, tcx, 
 tcx.gz, gpx and  gpx.gz. There is no current logic to detect what 
 sort is being uploaded (patches welcome), so you will need to set 
 it which ever file your uploading. ie 'gpx' for a GPX file.
 
-=item 'activity_type'
+=item activity_type
+
 Optional, case insensitive string of following types (list may be 
 out of date check L<http://strava.github.io/api/v3/uploads/#post-file> 
 for up to date info): ride, run, swim, workout, hike, walk, 
@@ -263,21 +266,26 @@ nordicski, alpineski, backcountryski, iceskate, inlineskate, kitesurf,
 rollerski, windsurf, workout, snowboard, snowshoe. Type detected from 
 file overrides, uses athlete’s default type if not specified.
 
-=item 'name'
+=item name
+
 Optional string, if not provided, will be populated using start date 
 and location, if available.
 
-=item 'description'
+=item description
+
 Optional. Left blank if not provided.
 
-=item 'private'
+=item private
+
 Sets the Activity to Private.
 
-=item 'trainer'
+=item trainer
+
 Optional integer, activities without lat/lng info in the file are 
 auto marked as stationary, set to 1 to force.
 
-=item 'external_id'
+=item external_id
+
 Optional string, data filename will be used by default but should 
 be a unique identifier.
 
