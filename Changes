@@ -1,4 +1,6 @@
 {{$NEXT}}
+        Small Pod Fixes
+        Fix Auth.t testing failures. RT #102362 + Github #18
 
 0.04      2015-02-19 13:00:44+08:00 Australia/Perth
 
