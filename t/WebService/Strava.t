@@ -55,6 +55,8 @@ sub strava_test {
       if (@{$activities}[0])  {
         is( ref( $activities ), 'ARRAY', 'Activities is an array' );
         isa_ok( @{$activities}[0], 'WebService::Strava::Athlete::Activity');
+        #Check data was populated
+        ok( defined( @{$activities}[0]->start_date ));
       } else {
         note('Current authenticated user has not got any activities');
       }
@@ -63,6 +65,8 @@ sub strava_test {
       if (@{$friends_activities}[0])  {
         is( ref( $friends_activities ), 'ARRAY', 'Friends activities is an array' );
         isa_ok( @{$friends_activities}[0], 'WebService::Strava::Athlete::Activity');
+        #Check data was populated
+        ok( defined( @{$friends_activities}[0]->start_date ));
       } else {
         note('Current authenticated user has not got any friends with activities');
       }
