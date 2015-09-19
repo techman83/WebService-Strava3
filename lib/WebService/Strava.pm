@@ -361,7 +361,7 @@ assistance and a lot of boiler plate for this library.
 =head1 BUGS/Feature Requests
 
 Please submit any bugs, feature requests to
-L<https://github.com/techamn83/WebService-Strava3/issues> .
+L<https://github.com/techman83/WebService-Strava3/issues> .
 
 Contributions are more than welcome! I am aware that Dist::Zilla comes with quite a dependency chain, so feel free to submit pull request with code + explanation of what you are trying to achieve and I will test and likely implement them.
 
