@@ -3,13 +3,14 @@ package WebService::Strava::Segment;
 use v5.010;
 use strict;
 use warnings;
-use Moo;
-use Method::Signatures;
 use Scalar::Util qw(looks_like_number);
 use Scalar::Util::Reftype;
 use Carp qw(croak);
-use experimental 'switch';
 use Data::Dumper;
+use Method::Signatures 20140224;
+use Moo;
+use experimental 'switch';
+use namespace::clean;
 
 # ABSTRACT: A Strava Segment Object
 
