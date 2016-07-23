@@ -65,9 +65,9 @@ has '_build'                  => ( is => 'ro', default => sub { 1 }, isa => $Boo
 has 'name'                      => ( is => 'ro', lazy => 1, builder => '_build_activity' );
 
 has 'resource_state'            => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
-has 'indicates level of detail' => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
+has 'indicates_level_of_detail' => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'external_id'               => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
-has 'provided at upload'        => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
+has 'provided_at_upload'        => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'athlete'                   => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'description'               => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'distance'                  => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
@@ -98,7 +98,7 @@ has 'workout_type'              => ( is => 'ro', lazy => 1, builder => '_build_a
 has 'gear_id'                   => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'gear'                      => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'average_speed'             => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
-has 'meters per second'         => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
+has 'meters_per_second'         => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'max_speed'                 => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'average_cadence'           => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'average_temp'              => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
