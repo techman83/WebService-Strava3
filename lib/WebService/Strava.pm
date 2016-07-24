@@ -3,10 +3,11 @@ use v5.010;
 use strict;
 use warnings;
 use autodie;
-use Moo;
-use Method::Signatures;
 use Data::Dumper;
 use Carp qw(croak);
+use Method::Signatures 20140224;
+use Moo;
+use namespace::clean;
 
 our $DEBUG = $ENV{STRAVA_DEBUG} || 0;
 

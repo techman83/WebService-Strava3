@@ -1,8 +1,12 @@
 {{$NEXT}}
 
+          RT #116416 - Failing on Moo >= 2.002002
+          PR #22 by @OneLastTry - Populate Activity Objects
+          Minor use declaration tidy ups.
+
 0.05      2015-02-26 13:31:07+08:00 Australia/Perth
-        Small Pod Fixes
-        Fix Auth.t testing failures. RT #102362 + Github #18
+          Small Pod Fixes
+          Fix Auth.t testing failures. RT #102362 + Github #18
 
 0.04      2015-02-19 13:00:44+08:00 Australia/Perth
 

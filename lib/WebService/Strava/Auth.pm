@@ -3,9 +3,6 @@ package WebService::Strava::Auth;
 use v5.010;
 use strict;
 use warnings;
-use experimental 'say';
-use Moo;
-use Method::Signatures;
 use Config::Tiny;
 use LWP::Authen::OAuth2;
 use JSON qw(decode_json encode_json);
@@ -14,6 +11,10 @@ use Carp qw(croak);
 use File::Basename;
 use File::MimeInfo::Magic;
 use Data::Dumper;
+use Method::Signatures 20140224;
+use Moo;
+use experimental 'say';
+use namespace::clean;
 
 # ABSTRACT: A Strava Segment Object
 

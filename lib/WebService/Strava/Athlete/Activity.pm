@@ -3,13 +3,14 @@ package WebService::Strava::Athlete::Activity;
 use v5.010;
 use strict;
 use warnings;
-use Moo;
-use Method::Signatures;
 use Scalar::Util qw(looks_like_number);
 use Carp qw(croak);
 use Scalar::Util::Reftype;
-use experimental 'switch';
 use Data::Dumper;
+use Method::Signatures 20140224;
+use Moo;
+use experimental 'switch';
+use namespace::clean;
 
 # ABSTRACT: A Strava Activity Object
 
@@ -65,9 +66,9 @@ has '_build'                  => ( is => 'ro', default => sub { 1 }, isa => $Boo
 has 'name'                      => ( is => 'ro', lazy => 1, builder => '_build_activity' );
 
 has 'resource_state'            => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
-has 'indicates level of detail' => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
+has 'indicates_level_of_detail' => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'external_id'               => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
-has 'provided at upload'        => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
+has 'provided_at_upload'        => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'athlete'                   => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'description'               => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'distance'                  => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
@@ -98,7 +99,7 @@ has 'workout_type'              => ( is => 'ro', lazy => 1, builder => '_build_a
 has 'gear_id'                   => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'gear'                      => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'average_speed'             => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
-has 'meters per second'         => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
+has 'meters_per_second'         => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'max_speed'                 => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'average_cadence'           => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 
 has 'average_temp'              => ( is => 'ro', lazy => 1, builder => '_build_activity' ); 

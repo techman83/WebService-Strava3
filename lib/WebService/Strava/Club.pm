@@ -3,12 +3,13 @@ package WebService::Strava::Club;
 use v5.010;
 use strict;
 use warnings;
-use Moo;
-use Method::Signatures;
 use Scalar::Util qw(looks_like_number);
 use Carp qw(croak);
 use Scalar::Util::Reftype;
 use Data::Dumper;
+use Method::Signatures 20140224;
+use Moo;
+use namespace::clean;
 
 # ABSTRACT: A Strava Club Object
 
