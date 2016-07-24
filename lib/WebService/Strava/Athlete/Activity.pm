@@ -125,7 +125,11 @@ sub BUILD {
 
 method _build_activity() {
   my $activity = $self->auth->get_api("/activities/$self->{id}");
- 
+  $self->_init_from_api($activity);
+  return;
+}
+
+method _init_from_api($activity) {
   foreach my $key (keys %{ $activity }) {
     given ( $key ) {
       when      ("athlete")           { $self->_instantiate("Athlete", $key, $activity->{$key}); }

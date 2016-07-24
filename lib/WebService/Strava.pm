@@ -204,8 +204,10 @@ method list_activities(:$activities = 25, :$page = 1, :$before?, :$after?) {
   $url .= "&after=$after" if $after;
   my $data = $self->auth->get_api("$url");
   my $index = 0;
-  foreach my $activity (@{$data}) {
-    @{$data}[$index] = WebService::Strava::Athlete::Activity->new(id => $activity->{id}, auth => $self->auth, _build => 0);
+  foreach my $activity_data (@{$data}) {
+    my $activity = WebService::Strava::Athlete::Activity->new(id => $activity_data->{id}, auth => $self->auth, _build => 0);
+    $activity->_init_from_api($activity_data);
+    @{$data}[$index] = $activity;
     $index++;
   }
   return $data;
@@ -227,8 +229,10 @@ method list_friends_activities(:$activities = 25, :$page = 1) {
   # TODO: Handle pagination better use #4's solution when found.
   my $data = $self->auth->get_api("/activities/following?per_page=$activities&page=$page");
   my $index = 0;
-  foreach my $activity (@{$data}) {
-    @{$data}[$index] = WebService::Strava::Athlete::Activity->new(id => $activity->{id}, auth => $self->auth, _build => 0);
+  foreach my $activity_data (@{$data}) {
+    my $activity = WebService::Strava::Athlete::Activity->new(id => $activity_data->{id}, auth => $self->auth, _build => 0);
+    $activity->_init_from_api($activity_data);
+    @{$data}[$index] = $activity;
     $index++;
   }
   return $data;
@@ -357,7 +361,7 @@ assistance and a lot of boiler plate for this library.
 =head1 BUGS/Feature Requests
 
 Please submit any bugs, feature requests to
-L<https://github.com/techamn83/WebService-Strava3/issues> .
+L<https://github.com/techman83/WebService-Strava3/issues> .
 
 Contributions are more than welcome! I am aware that Dist::Zilla comes with quite a dependency chain, so feel free to submit pull request with code + explanation of what you are trying to achieve and I will test and likely implement them.
 
