@@ -51,7 +51,7 @@ around BUILDARGS => sub {
 has 'api_base'      => (is => 'ro', default => sub { 'https://www.strava.com/api/v3' });
 has 'config_file'   => ( is => 'ro', default  => sub { "$ENV{HOME}/.stravarc" } );
 has 'config'        => ( is => 'rw', lazy => 1, builder => 1 );
-has 'scope'         => ( is => 'ro', default  => sub { "view_private,write" } );
+has 'scope'         => ( is => 'ro', default  => sub { "activity:read_all,activity:write,profile:write,profile:read_all" } );
 has 'auth'          => ( is => 'rw', lazy => 1, builder => 1, handles => [ qw( get post ) ] );
 
 # TODO: Potentially allow the config to be passed through instead of loaded.
